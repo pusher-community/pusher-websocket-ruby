@@ -1,6 +1,37 @@
-= pusher-client
+= PusherClient
 
-Description goes here.
+pusher-client is a ruby gem for consuming WebSockets from the "Pusher webservice"[http://pusherapp.com]
+
+It is driven by event-machine and maintains a connection to Pusher in its own thread.
+
+== Usage
+<tt>
+
+# Configuration
+require 'pusher-client'
+PusherClient.logger = Logger.new(STDOUT)
+socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)
+socket.connect
+
+# Bind to a global event
+socket.bind('globalevent') do |data|
+  # Do something
+end
+
+# Subscribe to a channel
+socket.subscribe('mychannel')
+
+# Bind to a channel event
+socket['mychannel'].bind('channelevent') do |data|
+  # Do something
+end
+
+# Disconnect
+socket.disconnect
+</tt>
+
+For further documentation, read the source & test suite. Some features of the JavaScript client
+are not yet implemented.
 
 == Contributing to pusher-client
  

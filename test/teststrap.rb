@@ -7,5 +7,48 @@ rescue Bundler::BundlerError => e
   $stderr.puts "Run `bundle install` to install missing gems"
   exit e.status_code
 end
-require 'riot'
-require 'pusher-client'
+require 'bacon'
+
+require File.dirname(__FILE__) + '/../lib/pusher-client.rb'
+
+TEST_APP_KEY = "TEST_APP_KEY"
+
+module PusherClient
+  class TestLogger < Logger
+    attr_reader :test_messages
+
+    def initialize(logdev, shift_age = 0, shift_size = 1048576)
+      @test_messages = []
+      super
+    end
+    def test(msg)
+      @test_messages << msg
+      debug msg
+    end
+  end
+
+  class Socket
+    # Simulate a connection being established
+    def connect
+      @connection_thread = Thread.new do
+        @connection = TestConnection.new
+        @global_channel.dispatch('pusher:connection_established', {'socket_id' => '123abc'})
+      end
+      @connection_thread.run
+      sleep(1)
+    end
+
+    def simulate_received(event_name, event_data, channel_name)
+      send_local_event(event_name, event_data, channel_name)
+    end
+  end
+
+  class TestConnection
+    def send(payload)
+      PusherClient.logger.test("SEND: #{payload}")
+    end
+  end
+
+  PusherClient.logger = TestLogger.new('test.log')
+
+end
