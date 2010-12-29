@@ -39,7 +39,7 @@ module PusherClient
       end
     end
 
-    def connect
+    def connect(async = false)
       @connection_thread = Thread.new do
         EventMachine.run {
           if @encrypted || @secure
@@ -77,12 +77,18 @@ module PusherClient
         }
       end
       @connection_thread.run
+      if async
+        sleep(1)
+      else
+        @connection_thread.join
+      end
+      return self
     end
 
     def disconnect
       if @connected
         PusherClient.logger.debug "Pusher : disconnecting"
-        @connection_thread.kill
+        @connection_thread.kill if @connection_thread
         @connected = false
       else
         PusherClient.logger.warn "Disconnect attempted... not connected"

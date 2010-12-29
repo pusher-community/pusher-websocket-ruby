@@ -29,13 +29,15 @@ module PusherClient
 
   class Socket
     # Simulate a connection being established
-    def connect
+    def connect(async = false)
       @connection_thread = Thread.new do
         @connection = TestConnection.new
         @global_channel.dispatch('pusher:connection_established', {'socket_id' => '123abc'})
       end
       @connection_thread.run
+      @connection_thread.join unless async
       sleep(1)
+      return self
     end
 
     def simulate_received(event_name, event_data, channel_name)
