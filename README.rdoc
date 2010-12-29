@@ -2,7 +2,9 @@
 
 pusher-client is a ruby gem for consuming WebSockets from the Pusher webservice[http://pusherapp.com]
 
-It is driven by event-machine and maintains a connection to Pusher, optionally in its own thread.
+The connection to Pusher can optionally be maintained in its own thread (see Asynchronous Usage)
+
+This gem no longer depends on em-http, and is compatible with jruby as of 0.2.
 
 == Installation
   gem install pusher-client

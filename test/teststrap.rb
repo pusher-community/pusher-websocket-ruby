@@ -36,7 +36,6 @@ module PusherClient
       end
       @connection_thread.run
       @connection_thread.join unless async
-      sleep(1)
       return self
     end
 
@@ -48,6 +47,9 @@ module PusherClient
   class TestConnection
     def send(payload)
       PusherClient.logger.test("SEND: #{payload}")
+    end
+
+    def close
     end
   end
 

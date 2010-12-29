@@ -1,8 +1,8 @@
 require 'rubygems'
-require 'pusher-client'
+require './lib/pusher-client.rb'
 require 'pp'
 
-YOUR_APPLICATION_KEY = ''
+YOUR_APPLICATION_KEY = '73c70db2f09b7f279382'
 
 PusherClient.logger = Logger.new('/dev/null')
 socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)

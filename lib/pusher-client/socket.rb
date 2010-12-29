@@ -1,6 +1,4 @@
 require 'json'
-require 'eventmachine'
-require 'em-http'
 
 module PusherClient
   class Socket
@@ -40,54 +38,36 @@ module PusherClient
     end
 
     def connect(async = false)
-      @connection_thread = Thread.new do
-        EventMachine.run {
-          if @encrypted || @secure
-            url = "wss://#{HOST}:#{WSS_PORT}#{@path}"
-          else
-            url = "ws://#{HOST}:#{WS_PORT}#{@path}"
-          end
-          PusherClient.logger.debug("Pusher : connecting : #{url}")
-
-          @connection = EventMachine::HttpRequest.new(url).get :timeout => 0
-
-          @connection.callback {
-            PusherClient.logger.debug "Websocket connected"
-          }
-
-          @connection.stream { |msg|
-            PusherClient.logger.debug "Received: #{msg}"
-            params  = parser(msg)
-            return if (params['socket_id'] && params['socket_id'] == this.socket_id)
-
-            event_name   = params['event']
-            event_data   = params['data']
-            channel_name = params['channel']
-
-            send_local_event(event_name, event_data, channel_name)
-          }
-
-          @connection.errback {
-            PusherClient.logger.fatal "Pusher : eventmachine error"
-          }
-
-          @connection.disconnect {
-            PusherClient.logger.debug "Pusher : dropped connection"
-          }
-        }
-      end
-      @connection_thread.run
-      if async
-        sleep(1)
+      if @encrypted || @secure
+        url = "wss://#{HOST}:#{WSS_PORT}#{@path}"
       else
-        @connection_thread.join
+        url = "ws://#{HOST}:#{WS_PORT}#{@path}"
       end
+      PusherClient.logger.debug("Pusher : connecting : #{url}")
+
+      @connection_thread = Thread.new {
+        @connection = WebSocket.new(url)
+        PusherClient.logger.debug "Websocket connected"
+        loop do
+          msg = @connection.receive[0]
+          params  = parser(msg)
+          next if (params['socket_id'] && params['socket_id'] == self.socket_id)
+          event_name   = params['event']
+          event_data   = params['data']
+          channel_name = params['channel']
+          send_local_event(event_name, event_data, channel_name)
+        end
+      }
+
+      @connection_thread.run
+      @connection_thread.join unless async
       return self
     end
 
     def disconnect
       if @connected
         PusherClient.logger.debug "Pusher : disconnecting"
+        @connection.close
         @connection_thread.kill if @connection_thread
         @connected = false
       else

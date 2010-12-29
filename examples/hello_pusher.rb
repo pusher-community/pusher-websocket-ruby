@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'pusher-client'
+require './lib/pusher-client.rb'
 require 'pp'
 
 YOUR_APPLICATION_KEY = ''
