@@ -99,7 +99,7 @@ module PusherClient
       channel = @channels << channel_name
       if @connected
         send_event('pusher:subscribe', {
-          'channel' => channel_name
+          'channel' => channel.name
         })
         channel.acknowledge_subscription(nil)
       end
@@ -130,7 +130,9 @@ module PusherClient
     end
 
     def subscribe_all
-      @channels.channels.each_with_index { |k,v| subscribe(k) }
+      @channels.channels.clone.each{ |k,v| 
+        subscribe(k)
+      }
     end
     
     # For compatibility with JavaScript client API

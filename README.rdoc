@@ -2,21 +2,20 @@
 
 pusher-client is a ruby gem for consuming WebSockets from the Pusher webservice[http://pusherapp.com]
 
-It is driven by event-machine and maintains a connection to Pusher in its own thread.
+It is driven by event-machine and maintains a connection to Pusher, optionally in its own thread.
 
 == Installation
   gem install pusher-client
-== Usage
+== Evented Usage
+The application will pause at socket.connect and handle events from Pusher as they happen.
 
-  # Configuration
   require 'pusher-client'
   PusherClient.logger = Logger.new(STDOUT)
   socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)
-  socket.connect
 
   # Bind to a global event
   socket.bind('globalevent') do |data|
-    # Do something
+    puts data
   end
 
   # Subscribe to a channel
@@ -24,11 +23,36 @@ It is driven by event-machine and maintains a connection to Pusher in its own th
 
   # Bind to a channel event
   socket['mychannel'].bind('channelevent') do |data|
-    # Do something
+    puts data
   end
 
-  # Disconnect
-  socket.disconnect
+  socket.connect
+
+== Asynchronous Usage
+The socket will remain open in the background as long as your main application thread is running,
+and you can continue to subscribe/unsubscribe to channels and bind new events.
+
+  require 'pusher-client'
+  PusherClient.logger = Logger.new(STDOUT)
+  socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)
+  socket.connect(true) # Connect asynchronously
+
+  # Bind to a global event
+  socket.bind('globalevent') do |data|
+    puts data
+  end
+
+  # Subscribe to a channel
+  socket.subscribe('mychannel')
+
+  # Bind to a channel event
+  socket['mychannel'].bind('channelevent') do |data|
+    puts data
+  end
+
+  loop do
+    sleep(1)
+  end
 
 For further documentation, read the source & test suite. Some features of the JavaScript client
 are not yet implemented.
