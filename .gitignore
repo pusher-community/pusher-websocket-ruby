@@ -8,3 +8,4 @@ coverage
 mkmf.log
 test/rcov/*
 .project
+.bundle
