@@ -1,6 +1,6 @@
 = PusherClient
 
-pusher-client is a ruby gem for consuming WebSockets from the "Pusher webservice"[http://pusherapp.com]
+pusher-client is a ruby gem for consuming WebSockets from the Pusher webservice[http://pusherapp.com]
 
 It is driven by event-machine and maintains a connection to Pusher in its own thread.
 
