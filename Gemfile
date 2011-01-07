@@ -1,7 +1,7 @@
 source "http://rubygems.org"
 
 gem "eventmachine", "~>0.12.10"
-gem "libwebsocket"
+gem "libwebsocket", "~>0.1.0"
 
 group :development do
   gem "bacon", ">= 0"

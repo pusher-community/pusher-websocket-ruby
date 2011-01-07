@@ -1,14 +1,14 @@
-= PusherClient
+= pusher-client (Ruby)
 
-pusher-client is a ruby gem for consuming WebSockets from the Pusher webservice[http://pusherapp.com]
+pusher-client is a ruby gem for consuming WebSockets from the Pusher[http://pusherapp.com] web service.
 
-The connection to Pusher can optionally be maintained in its own thread (see Asynchronous Usage)
+The connection to Pusher can optionally be maintained in its own thread (see Asynchronous Usage).
 
-This gem no longer depends on em-http, and is compatible with jruby as of 0.2.
+This gem no longer depends on em-http, and is compatible with jruby since 0.2.
 
 == Installation
   gem install pusher-client
-== Evented Usage
+== Single-Threaded Usage
 The application will pause at socket.connect and handle events from Pusher as they happen.
 
   require 'pusher-client'

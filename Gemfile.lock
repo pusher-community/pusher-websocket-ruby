@@ -23,5 +23,5 @@ DEPENDENCIES
   bundler (~> 1.0.0)
   eventmachine (~> 0.12.10)
   jeweler (~> 1.5.2)
-  libwebsocket
+  libwebsocket (~> 0.1.0)
   rcov
