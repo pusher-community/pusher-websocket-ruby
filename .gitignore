@@ -10,4 +10,5 @@ test/rcov/*
 .project
 .bundle
 pkg/*
-run_example
+run_example_playground
+examples/hello_pusher_playground.rb

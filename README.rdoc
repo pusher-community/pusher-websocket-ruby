@@ -6,6 +6,9 @@ The connection to Pusher can optionally be maintained in its own thread (see Asy
 
 This gem no longer depends on em-http, and is compatible with jruby since 0.2.
 
+When binding to a global event, note that you still must be subscribed to the channels the event
+may be sent on. You can't just bind a global event without subscribing to any channels and call it a day.
+
 == Installation
   gem install pusher-client
 == Single-Threaded Usage
@@ -15,16 +18,17 @@ The application will pause at socket.connect and handle events from Pusher as th
   PusherClient.logger = Logger.new(STDOUT)
   socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)
 
-  # Bind to a global event
+  # Subscribe to two channels
+  socket.subscribe('channel1')
+  socket.subscribe('channel2')
+
+  # Bind to a global event (can occur on either channel1 or channel2)
   socket.bind('globalevent') do |data|
     puts data
   end
 
-  # Subscribe to a channel
-  socket.subscribe('mychannel')
-
-  # Bind to a channel event
-  socket['mychannel'].bind('channelevent') do |data|
+  # Bind to a channel event (can only occur on channel1)
+  socket['channel1'].bind('channelevent') do |data|
     puts data
   end
 
@@ -39,16 +43,17 @@ and you can continue to subscribe/unsubscribe to channels and bind new events.
   socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)
   socket.connect(true) # Connect asynchronously
 
-  # Bind to a global event
+  # Subscribe to two channels
+  socket.subscribe('channel1')
+  socket.subscribe('channel2')
+
+  # Bind to a global event (can occur on either channel1 or channel2)
   socket.bind('globalevent') do |data|
     puts data
   end
 
-  # Subscribe to a channel
-  socket.subscribe('mychannel')
-
-  # Bind to a channel event
-  socket['mychannel'].bind('channelevent') do |data|
+  # Bind to a channel event (can only occur on channel1)
+  socket['channel1'].bind('channelevent') do |data|
     puts data
   end
 

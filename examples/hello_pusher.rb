@@ -5,7 +5,6 @@ require './lib/pusher-client.rb'
 require 'pp'
 
 APP_KEY = ENV['PUSHER_KEY'] # || "YOUR_APPLICATION_KEY"
-puts APP_KEY
 
 PusherClient.logger = Logger.new('/dev/null')
 socket = PusherClient::Socket.new(APP_KEY)
