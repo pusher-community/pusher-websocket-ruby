@@ -1,11 +1,14 @@
+# Usage: $ PUSHER_KEY=YOURKEY ruby examples/hello_pusher.rb
+
 require 'rubygems'
 require './lib/pusher-client.rb'
 require 'pp'
 
-YOUR_APPLICATION_KEY = ''
+APP_KEY = ENV['PUSHER_KEY'] # || "YOUR_APPLICATION_KEY"
+puts APP_KEY
 
 PusherClient.logger = Logger.new('/dev/null')
-socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)
+socket = PusherClient::Socket.new(APP_KEY)
 
 # Subscribe to a channel
 socket.subscribe('hellopusher')

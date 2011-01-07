@@ -71,6 +71,15 @@ describe "A PusherClient::Socket" do
     @socket.connected.should.equal false
   end
 
+  it 'should raise ArgumentError if TEST_APP_KEY is not a nonempty string' do
+    lambda { 
+      @broken_socket = PusherClient::Socket.new('')
+    }.should.raise(ArgumentError)
+    lambda { 
+      @broken_socket = PusherClient::Socket.new(555)
+    }.should.raise(ArgumentError)
+  end
+
   describe "...when connected" do
     before do
       @socket.connect

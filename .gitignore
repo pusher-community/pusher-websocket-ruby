@@ -10,3 +10,4 @@ test/rcov/*
 .project
 .bundle
 pkg/*
+run_example
