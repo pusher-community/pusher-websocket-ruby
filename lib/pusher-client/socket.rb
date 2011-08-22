@@ -38,7 +38,7 @@ module PusherClient
       end
 
       bind('pusher:error') do |data|
-        PusherClient.logger.fatal("Pusher : error : #{data.message}")
+        PusherClient.logger.fatal("Pusher : error : #{data.inspect}")
       end
     end
 
@@ -149,8 +149,9 @@ module PusherClient
     end
     
     def get_private_auth(channel)
-      string_to_sign = @socket_id + ":" + channel.name
-      HMAC::SHA256.hexdigest(@secret, string_to_sign)
+      string_to_sign = @socket_id + ':' + channel.name
+      signature = HMAC::SHA256.hexdigest(@secret, string_to_sign)
+      return "#{@key}:#{signature}"
     end
     
     def get_presence_auth(channel)
