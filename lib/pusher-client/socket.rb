@@ -12,7 +12,7 @@ module PusherClient
     attr_accessor :encrypted, :secure
     attr_reader :path, :connected, :channels, :global_channel, :socket_id
 
-    def initialize(application_key, options={}, application_secret = nil)
+    def initialize(application_key, options={})
       raise ArgumentError if (!application_key.is_a?(String) || application_key.size < 1)
 
       @path = "/app/#{application_key}?client=#{CLIENT_ID}&version=#{VERSION}"
