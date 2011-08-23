@@ -1,4 +1,6 @@
 require 'json'
+require 'hmac-sha2'
+require 'digest/md5'
 
 module PusherClient
   class Socket
@@ -11,11 +13,11 @@ module PusherClient
     attr_reader :path, :connected, :channels, :global_channel, :socket_id
 
     def initialize(application_key, options={})
-
       raise ArgumentError if (!application_key.is_a?(String) || application_key.size < 1)
 
       @path = "/app/#{application_key}?client=#{CLIENT_ID}&version=#{VERSION}"
       @key = application_key
+      @secret = options[:secret]
       @socket_id = nil
       @channels = Channels.new
       @global_channel = Channel.new('pusher_global_channel')
@@ -25,8 +27,9 @@ module PusherClient
       @encrypted = options[:encrypted] || false
 
       bind('pusher:connection_established') do |data|
+        socket = JSON.parse(data)
         @connected = true
-        @socket_id = data['socket_id']
+        @socket_id = socket['socket_id']
         subscribe_all
       end
 
@@ -35,7 +38,7 @@ module PusherClient
       end
 
       bind('pusher:error') do |data|
-        PusherClient.logger.fatal("Pusher : error : #{data.message}")
+        PusherClient.logger.fatal("Pusher : error : #{data.inspect}")
       end
     end
 
@@ -77,13 +80,12 @@ module PusherClient
       end
     end
 
-    def subscribe(channel_name)
+    def subscribe(channel_name, user_id = nil)
+      @user_data = {:user_id => user_id}.to_json unless user_id.nil?
+      
       channel = @channels << channel_name
       if @connected
-        send_event('pusher:subscribe', {
-          'channel' => channel.name
-        })
-        channel.acknowledge_subscription(nil)
+        authorize(channel, method(:authorize_callback))
       end
       return channel
     end
@@ -116,6 +118,48 @@ module PusherClient
         subscribe(k)
       }
     end
+    
+    #auth for private and presence
+    def authorize(channel, callback)
+      if is_private_channel(channel.name)
+        auth_data = get_private_auth(channel)
+      elsif is_presence_channel(channel.name)
+        auth_data = get_presence_auth(channel)
+        channel_data = @user_data
+      end
+      # could both be nil if didn't require auth
+      callback.call(channel, auth_data, channel_data)
+    end
+    
+    def authorize_callback(channel, auth_data, channel_data)
+      send_event('pusher:subscribe', {
+        'channel' => channel.name,
+        'auth' => auth_data,
+        'channel_data' => channel_data
+      })
+      channel.acknowledge_subscription(nil)
+    end
+    
+    def is_private_channel(channel_name)
+      channel_name.match(/^private-/)
+    end
+    
+    def is_presence_channel(channel_name)
+      channel_name.match(/^presence-/)
+    end
+    
+    def get_private_auth(channel)
+      string_to_sign = @socket_id + ':' + channel.name
+      signature = HMAC::SHA256.hexdigest(@secret, string_to_sign)
+      return "#{@key}:#{signature}"
+    end
+    
+    def get_presence_auth(channel)
+      string_to_sign = @socket_id + ':' + channel.name + ':' + @user_data
+      signature = HMAC::SHA256.hexdigest(@secret, string_to_sign)
+      return "#{@key}:#{signature}"    
+    end
+    
     
     # For compatibility with JavaScript client API
     alias :subscribeAll :subscribe_all 

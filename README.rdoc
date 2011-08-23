@@ -16,11 +16,18 @@ The application will pause at socket.connect and handle events from Pusher as th
 
   require 'pusher-client'
   PusherClient.logger = Logger.new(STDOUT)
-  socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)
+  options = {:secret => 'YOUR_APPLICATION_SECRET'} 
+  socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY, options)
 
   # Subscribe to two channels
   socket.subscribe('channel1')
   socket.subscribe('channel2')
+
+  # Subscribe to presence channel
+  socket.subscribe('presence-channel3', USER_ID)
+
+  # Subscribe to private channel
+  socket.subscribe('private-channel4', USER_ID)
 
   # Bind to a global event (can occur on either channel1 or channel2)
   socket.bind('globalevent') do |data|
