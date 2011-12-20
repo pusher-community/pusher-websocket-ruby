@@ -53,14 +53,12 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<eventmachine>, ["~> 0.12.10"])
       s.add_runtime_dependency(%q<libwebsocket>, ["~> 0.1.0"])
       s.add_development_dependency(%q<bacon>, [">= 0"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
       s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
       s.add_development_dependency(%q<rcov>, [">= 0"])
     else
-      s.add_dependency(%q<eventmachine>, ["~> 0.12.10"])
       s.add_dependency(%q<libwebsocket>, ["~> 0.1.0"])
       s.add_dependency(%q<bacon>, [">= 0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
@@ -68,7 +66,6 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rcov>, [">= 0"])
     end
   else
-    s.add_dependency(%q<eventmachine>, ["~> 0.12.10"])
     s.add_dependency(%q<libwebsocket>, ["~> 0.1.0"])
     s.add_dependency(%q<bacon>, [">= 0"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
