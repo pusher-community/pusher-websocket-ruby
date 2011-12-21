@@ -2,8 +2,6 @@ GEM
   remote: http://rubygems.org/
   specs:
     bacon (1.1.0)
-    eventmachine (0.12.10)
-    eventmachine (0.12.10-java)
     git (1.2.5)
     jeweler (1.5.2)
       bundler (~> 1.0.0)
@@ -21,7 +19,6 @@ PLATFORMS
 DEPENDENCIES
   bacon
   bundler (~> 1.0.0)
-  eventmachine (~> 0.12.10)
   jeweler (~> 1.5.2)
   libwebsocket (~> 0.1.0)
   rcov
