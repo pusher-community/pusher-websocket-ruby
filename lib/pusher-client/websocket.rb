@@ -11,7 +11,7 @@ module PusherClient
       @frame ||= LibWebSocket::Frame.new
 
       @socket = TCPSocket.new(@hs.url.host, @hs.url.port || 80)
-      
+
       if params[:ssl] == true
 
         ctx = OpenSSL::SSL::SSLContext.new
@@ -22,7 +22,7 @@ module PusherClient
         ssl_sock = OpenSSL::SSL::SSLSocket.new(@socket, ctx)
         ssl_sock.sync_close = true
         ssl_sock.connect
-        
+
         @socket = ssl_sock
 
       end
@@ -44,9 +44,9 @@ module PusherClient
         end
       end
     end
-    
+
     def path_to_cert
-      File.join(File.dirname(File.expand_path(__FILE__)), '../certs/cacert.pem')
+      File.join(File.dirname(File.expand_path(__FILE__)), '../../certs/cacert.pem')
     end
 
     def send(data)
