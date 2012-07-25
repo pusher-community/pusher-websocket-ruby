@@ -7,7 +7,7 @@ require 'pp'
 APP_KEY = ENV['PUSHER_KEY'] # || "YOUR_APPLICATION_KEY"
 
 PusherClient.logger = Logger.new(STDOUT)
-socket = PusherClient::Socket.new(APP_KEY)
+socket = PusherClient::Socket.new(APP_KEY, { :encrypted => true } )
 
 # Subscribe to a channel
 socket.subscribe('hellopusher')

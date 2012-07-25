@@ -6,7 +6,7 @@ module PusherClient
   class Socket
     
     # Mimick the JavaScript client
-    CLIENT_ID = 'js' 
+    CLIENT_ID = 'pusher-ruby-clientß' 
     VERSION = '1.7.1'
 
     attr_accessor :encrypted, :secure
@@ -51,7 +51,8 @@ module PusherClient
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
       @connection_thread = Thread.new {
-        @connection = WebSocket.new(url)
+        options = {:ssl => @encrypted || @secure}
+        @connection = WebSocket.new(url, options)
         PusherClient.logger.debug "Websocket connected"
         loop do
           msg = @connection.receive[0]
