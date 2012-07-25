@@ -3,7 +3,7 @@ PATH
   specs:
     pusher-client (0.2.1)
       addressable (~> 2.3.1)
-      libwebsocket (~> 0.1.4)
+      libwebsocket (= 0.1.0)
       ruby-hmac (~> 0.4.0)
 
 GEM
@@ -11,8 +11,7 @@ GEM
   specs:
     addressable (2.3.1)
     bacon (1.1.0)
-    libwebsocket (0.1.4)
-      addressable
+    libwebsocket (0.1.0)
     ruby-hmac (0.4.0)
 
 PLATFORMS
