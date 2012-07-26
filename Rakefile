@@ -13,12 +13,12 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "pusher-client"
-  gem.homepage = "http://github.com/logankoester/pusher-client"
+  gem.homepage = "http://github.com/pusher/pusher-ruby-client"
   gem.license = "MIT"
-  gem.summary = %Q{Ruby client for consuming WebSockets from http://pusherapp.com}
-  gem.description = %Q{Ruby client for consuming WebSockets from http://pusherapp.com}
+  gem.summary = %Q{Ruby client for consuming WebSockets from http://pusher.com}
+  gem.description = %Q{Ruby client for consuming WebSockets from http://pusher.com}
   gem.email = "logan@logankoester.com"
-  gem.authors = ["Logan Koester"]
+  gem.authors = ["Logan Koester", "Phil Leggetter"]
 end
 Jeweler::RubygemsDotOrgTasks.new
 
