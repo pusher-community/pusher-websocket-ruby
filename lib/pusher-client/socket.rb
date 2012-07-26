@@ -4,9 +4,9 @@ require 'digest/md5'
 
 module PusherClient
   class Socket
-    
+
     # Mimick the JavaScript client
-    CLIENT_ID = 'js' 
+    CLIENT_ID = 'pusher-ruby-client'
     VERSION = '1.7.1'
 
     attr_accessor :encrypted, :secure
@@ -51,7 +51,8 @@ module PusherClient
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
       @connection_thread = Thread.new {
-        @connection = WebSocket.new(url)
+        options = {:ssl => @encrypted || @secure}
+        @connection = WebSocket.new(url, options)
         PusherClient.logger.debug "Websocket connected"
         loop do
           msg = @connection.receive[0]
@@ -82,7 +83,7 @@ module PusherClient
 
     def subscribe(channel_name, user_id = nil)
       @user_data = {:user_id => user_id}.to_json unless user_id.nil?
-      
+
       channel = @channels << channel_name
       if @connected
         authorize(channel, method(:authorize_callback))
@@ -114,11 +115,11 @@ module PusherClient
     end
 
     def subscribe_all
-      @channels.channels.clone.each{ |k,v| 
+      @channels.channels.clone.each{ |k,v|
         subscribe(k)
       }
     end
-    
+
     #auth for private and presence
     def authorize(channel, callback)
       if is_private_channel(channel.name)
@@ -130,7 +131,7 @@ module PusherClient
       # could both be nil if didn't require auth
       callback.call(channel, auth_data, channel_data)
     end
-    
+
     def authorize_callback(channel, auth_data, channel_data)
       send_event('pusher:subscribe', {
         'channel' => channel.name,
@@ -139,30 +140,30 @@ module PusherClient
       })
       channel.acknowledge_subscription(nil)
     end
-    
+
     def is_private_channel(channel_name)
       channel_name.match(/^private-/)
     end
-    
+
     def is_presence_channel(channel_name)
       channel_name.match(/^presence-/)
     end
-    
+
     def get_private_auth(channel)
       string_to_sign = @socket_id + ':' + channel.name
       signature = HMAC::SHA256.hexdigest(@secret, string_to_sign)
       return "#{@key}:#{signature}"
     end
-    
+
     def get_presence_auth(channel)
       string_to_sign = @socket_id + ':' + channel.name + ':' + @user_data
       signature = HMAC::SHA256.hexdigest(@secret, string_to_sign)
-      return "#{@key}:#{signature}"    
+      return "#{@key}:#{signature}"
     end
-    
-    
+
+
     # For compatibility with JavaScript client API
-    alias :subscribeAll :subscribe_all 
+    alias :subscribeAll :subscribe_all
 
     def send_event(event_name, data)
       payload = {'event' => event_name, 'data' => data}.to_json

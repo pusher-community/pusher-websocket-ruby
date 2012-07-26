@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'socket'
 require 'libwebsocket'
+require 'openssl'
 
 module PusherClient
   class WebSocket
@@ -10,6 +11,21 @@ module PusherClient
       @frame ||= LibWebSocket::Frame.new
 
       @socket = TCPSocket.new(@hs.url.host, @hs.url.port || 80)
+
+      if params[:ssl] == true
+
+        ctx = OpenSSL::SSL::SSLContext.new
+        ctx.verify_mode = OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
+        # http://curl.haxx.se/ca/cacert.pem
+        ctx.ca_file = path_to_cert()
+
+        ssl_sock = OpenSSL::SSL::SSLSocket.new(@socket, ctx)
+        ssl_sock.sync_close = true
+        ssl_sock.connect
+
+        @socket = ssl_sock
+
+      end
 
       @socket.write(@hs.to_s)
       @socket.flush
@@ -27,6 +43,10 @@ module PusherClient
           break
         end
       end
+    end
+
+    def path_to_cert
+      File.join(File.dirname(File.expand_path(__FILE__)), '../../certs/cacert.pem')
     end
 
     def send(data)
