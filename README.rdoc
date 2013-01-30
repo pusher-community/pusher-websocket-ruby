@@ -9,6 +9,11 @@ This gem no longer depends on em-http, and is compatible with jruby since 0.2.
 When binding to a global event, note that you still must be subscribed to the channels the event
 may be sent on. You can't just bind a global event without subscribing to any channels and call it a day.
 
+== Build and install from cloned source
+  bundle
+  rake build
+  gem install pkg/pusher-client-0.2.2.gem
+
 == Installation
   gem install pusher-client
 == Single-Threaded Usage
