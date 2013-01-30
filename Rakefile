@@ -19,6 +19,7 @@ Jeweler::Tasks.new do |gem|
   gem.description = %Q{Ruby client for consuming WebSockets from http://pusher.com}
   gem.email = "logan@logankoester.com"
   gem.authors = ["Logan Koester", "Phil Leggetter"]
+  gem.version ='0.2.2'
 end
 Jeweler::RubygemsDotOrgTasks.new
 
@@ -29,16 +30,9 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
-require 'rcov/rcovtask'
-Rcov::RcovTask.new do |test|
-  test.libs << 'test'
-  test.pattern = 'test/**/*_test.rb'
-  test.verbose = true
-end
-
 task :default => :test
 
-require 'rake/rdoctask'
+require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 

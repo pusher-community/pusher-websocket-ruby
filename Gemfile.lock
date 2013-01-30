@@ -1,23 +1,27 @@
-PATH
-  remote: .
-  specs:
-    pusher-client (0.2.1)
-      addressable (~> 2.3.1)
-      libwebsocket (= 0.1.0)
-      ruby-hmac (~> 0.4.0)
-
 GEM
   remote: http://rubygems.org/
   specs:
-    addressable (2.3.1)
+    addressable (2.3.2)
     bacon (1.1.0)
-    libwebsocket (0.1.0)
-    ruby-hmac (0.4.0)
+    git (1.2.5)
+    jeweler (1.8.4)
+      bundler (~> 1.0)
+      git (>= 1.2.5)
+      rake
+      rdoc
+    json (1.7.6)
+    libwebsocket (0.1.5)
+      addressable
+    rake (10.0.3)
+    rdoc (3.12)
+      json (~> 1.4)
 
 PLATFORMS
   java
   ruby
 
 DEPENDENCIES
+  addressable
   bacon
-  pusher-client!
+  jeweler
+  libwebsocket (= 0.1.5)
