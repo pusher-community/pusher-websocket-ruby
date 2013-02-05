@@ -32,7 +32,7 @@ module PusherClient
     def connect(async = false)
       @connection_thread = Thread.new do
         @connection = TestConnection.new
-        @global_channel.dispatch('pusher:connection_established', {'socket_id' => '123abc'})
+        @global_channel.dispatch('pusher:connection_established', JSON.dump({'socket_id' => '123abc'}))
       end
       @connection_thread.run
       @connection_thread.join unless async
