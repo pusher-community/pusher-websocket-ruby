@@ -7,7 +7,7 @@ module PusherClient
 
     # Mimick the JavaScript client
     CLIENT_ID = 'pusher-ruby-client'
-    VERSION = '1.7.1'
+    VERSION = '1.11.0'
 
     attr_accessor :encrypted, :secure
     attr_reader :path, :connected, :channels, :global_channel, :socket_id
