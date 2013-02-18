@@ -7,7 +7,8 @@ module PusherClient
 
     # Mimick the JavaScript client
     CLIENT_ID = 'pusher-ruby-client'
-    VERSION = '1.7.1'
+    VERSION = '0.2.2'
+    PROTOCOL = '5'
 
     attr_accessor :encrypted, :secure
     attr_reader :path, :connected, :channels, :global_channel, :socket_id
@@ -15,7 +16,7 @@ module PusherClient
     def initialize(application_key, options={})
       raise ArgumentError if (!application_key.is_a?(String) || application_key.size < 1)
 
-      @path = "/app/#{application_key}?client=#{CLIENT_ID}&version=#{VERSION}"
+      @path = "/app/#{application_key}?client=#{CLIENT_ID}&version=#{VERSION}&protocol=#{PROTOCOL}"
       @key = application_key
       @secret = options[:secret]
       @socket_id = nil
