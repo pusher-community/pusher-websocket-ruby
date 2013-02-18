@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
     "LICENSE.txt",
     "README.rdoc",
     "Rakefile",
-    "VERSION",
     "examples/hello_pusher.rb",
     "examples/hello_pusher_async.rb",
     "lib/pusher-client.rb",
