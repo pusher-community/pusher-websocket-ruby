@@ -41,6 +41,10 @@ module PusherClient
       bind('pusher:error') do |data|
         PusherClient.logger.fatal("Pusher : error : #{data.inspect}")
       end
+
+      bind('pusher:ping') do
+       send_event('pusher:pong', nil)
+      end
     end
 
     def connect(async = false)
