@@ -1,19 +1,18 @@
 require 'rubygems'
 require 'socket'
-require 'libwebsocket'
+require 'websocket'
 require 'openssl'
 
 module PusherClient
-  class WebSocket
+  class PusherWebSocket
+    attr_accessor :socket
 
     def initialize(url, params = {})
-      @hs ||= LibWebSocket::OpeningHandshake::Client.new(:url => url, :version => params[:version])
-      @frame ||= LibWebSocket::Frame.new
-
-      @socket = TCPSocket.new(@hs.url.host, @hs.url.port || 80)
+      @hs ||= WebSocket::Handshake::Client.new(:url => url, :version => params[:version])
+      @frame ||= WebSocket::Frame::Incoming::Server.new(:version => @hs.version)
+      @socket = TCPSocket.new(@hs.host, @hs.port || 80)
 
       if params[:ssl] == true
-
         ctx = OpenSSL::SSL::SSLContext.new
         ctx.verify_mode = OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
         # http://curl.haxx.se/ca/cacert.pem
@@ -24,7 +23,6 @@ module PusherClient
         ssl_sock.connect
 
         @socket = ssl_sock
-
       end
 
       @socket.write(@hs.to_s)
@@ -34,11 +32,10 @@ module PusherClient
         data = @socket.getc
         next if data.nil?
 
-        result = @hs.parse(data.chr)
+        @hs << data
 
-        raise @hs.error unless result
-
-        if @hs.done?
+        if @hs.finished?
+          raise Exception unless @hs.valid?
           @handshaked = true
           break
         end
@@ -52,7 +49,7 @@ module PusherClient
     def send(data)
       raise "no handshake!" unless @handshaked
 
-      data = @frame.new(data).to_s
+      data = WebSocket::Frame::Outgoing::Server.new(version: @hs.version, data: data, type: :text).to_s
       @socket.write data
       @socket.flush
     end
@@ -60,25 +57,23 @@ module PusherClient
     def receive
       raise "no handshake!" unless @handshaked
 
-      data = @socket.gets("\xff")
-      @frame.append(data)
+      begin
+        data = @socket.read_nonblock(1024)
+      rescue IO::WaitReadable
+        IO.select([@socket])
+        retry
+      end
+      @frame << data
 
       messages = []
       while message = @frame.next
-        messages << message
+        messages << message.to_s
       end
       messages
-    end
-
-    def socket
-      @socket
     end
 
     def close
       @socket.close
     end
-
   end
 end
-
-

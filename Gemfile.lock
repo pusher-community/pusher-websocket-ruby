@@ -3,18 +3,16 @@ PATH
   specs:
     pusher-client (0.2.2)
       addressable (~> 2.3.1)
-      libwebsocket (= 0.1.5)
       ruby-hmac (~> 0.4.0)
+      websocket (~> 1.0.0)
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://www.rubygems.org/
   specs:
-    addressable (2.3.2)
+    addressable (2.3.3)
     archive-tar-minitar (0.5.2)
     bacon (1.2.0)
     columnize (0.3.6)
-    libwebsocket (0.1.5)
-      addressable
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
     rake (10.0.3)
@@ -29,6 +27,7 @@ GEM
     ruby-hmac (0.4.0)
     ruby_core_source (0.1.5)
       archive-tar-minitar (>= 0.5.2)
+    websocket (1.0.7)
 
 PLATFORMS
   java

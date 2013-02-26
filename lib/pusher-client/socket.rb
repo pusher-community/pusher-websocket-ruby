@@ -41,10 +41,6 @@ module PusherClient
       bind('pusher:error') do |data|
         PusherClient.logger.fatal("Pusher : error : #{data.inspect}")
       end
-
-      bind('pusher:ping') do
-       send_event('pusher:pong', nil)
-      end
     end
 
     def connect(async = false)
@@ -57,12 +53,11 @@ module PusherClient
 
       @connection_thread = Thread.new {
         options = {:ssl => @encrypted || @secure}
-        @connection = WebSocket.new(url, options)
+        @connection = PusherWebSocket.new(url, options)
         PusherClient.logger.debug "Websocket connected"
         loop do
           msg = @connection.receive[0]
           params  = parser(msg)
-          next if (params['socket_id'] && params['socket_id'] == self.socket_id)
           event_name   = params['event']
           event_data   = params['data']
           channel_name = params['channel']
