@@ -41,12 +41,12 @@ module PusherClient
       bind('pusher:error') do |data|
         PusherClient.logger.fatal("Pusher : error : #{data.inspect}")
       end
-    end
 
-    # Keep this in case we're using a websocket protocol that doesn't
-    # implement ping/pong
-    bind('pusher:ping') do
-      send_event('pusher:pong', nil)
+      # Keep this in case we're using a websocket protocol that doesn't
+      # implement ping/pong
+      bind('pusher:ping') do
+        send_event('pusher:pong', nil)
+      end
     end
 
     def connect(async = false)
