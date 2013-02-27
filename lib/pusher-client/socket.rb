@@ -43,6 +43,12 @@ module PusherClient
       end
     end
 
+    # Keep this in case we're using a websocket protocol that doesn't
+    # implement ping/pong
+    bind('pusher:ping') do
+      send_event('pusher:pong', nil)
+    end
+
     def connect(async = false)
       if @encrypted || @secure
         url = "wss://#{HOST}:#{WSS_PORT}#{@path}"
@@ -57,6 +63,7 @@ module PusherClient
         PusherClient.logger.debug "Websocket connected"
         loop do
           msg = @connection.receive[0]
+          next if msg.nil?
           params  = parser(msg)
           event_name   = params['event']
           event_data   = params['data']

@@ -46,10 +46,10 @@ module PusherClient
       File.join(File.dirname(File.expand_path(__FILE__)), '../../certs/cacert.pem')
     end
 
-    def send(data)
+    def send(data, type = :text)
       raise "no handshake!" unless @handshaked
 
-      data = WebSocket::Frame::Outgoing::Server.new(version: @hs.version, data: data, type: :text).to_s
+      data = WebSocket::Frame::Outgoing::Server.new(version: @hs.version, data: data, type: type).to_s
       @socket.write data
       @socket.flush
     end
@@ -67,6 +67,10 @@ module PusherClient
 
       messages = []
       while message = @frame.next
+        if message.type === :ping
+          send(message.data, :pong)
+          return messages
+        end
         messages << message.to_s
       end
       messages
