@@ -45,7 +45,7 @@ Gem::Specification.new do |s|
     "test/teststrap.rb"
   ]
 
-  s.add_runtime_dependency(%q<libwebsocket>, ["0.1.5"])
+  s.add_runtime_dependency(%q<websocket>, ["~> 1.0.0"])
   s.add_runtime_dependency(%q<ruby-hmac>, ["~> 0.4.0"])
   s.add_runtime_dependency(%q<addressable>, ["~> 2.3.1"])
   s.add_development_dependency(%q<bacon>, [">= 0"])
