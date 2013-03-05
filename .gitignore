@@ -12,3 +12,4 @@ test/rcov/*
 pkg/*
 run_example_playground
 examples/hello_pusher_playground.rb
+Gemfile.lock
