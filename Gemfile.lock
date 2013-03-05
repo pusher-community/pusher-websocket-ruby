@@ -13,6 +13,7 @@ GEM
     archive-tar-minitar (0.5.2)
     bacon (1.2.0)
     columnize (0.3.6)
+    json (1.7.7)
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
     rake (10.0.3)
@@ -35,6 +36,7 @@ PLATFORMS
 
 DEPENDENCIES
   bacon
+  json
   pusher-client!
   rake
   ruby-debug19

@@ -47,7 +47,5 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<addressable>, ["~> 2.3.1"])
   s.add_development_dependency(%q<bacon>, [">= 0"])
   s.add_development_dependency(%q<rake>, [">= 0"])
-  s.add_development_dependency(%q<ruby-debug19>, [">= 0"])
-
 end
 
