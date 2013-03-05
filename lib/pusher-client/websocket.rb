@@ -57,11 +57,18 @@ module PusherClient
     def receive
       raise "no handshake!" unless @handshaked
 
+      failures = 0
       begin
         data = @socket.read_nonblock(1024)
       rescue IO::WaitReadable
         IO.select([@socket])
         retry
+      rescue IOError
+        PusherClient.logger.debug "IOError receiving data"
+        sleep 0.01
+
+        failures += 1
+        failures < 5 ? retry : raise
       end
       @frame << data
 

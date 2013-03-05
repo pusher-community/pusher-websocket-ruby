@@ -60,21 +60,12 @@ module PusherClient
       @connection_thread = Thread.new {
         options     = {:ssl => @encrypted || @secure}
         @connection = WebSocket.new(url, options)
-        failures    = 0
         PusherClient.logger.debug "Websocket connected"
 
         loop do
-          msg = @connection.receive[0]
-          begin
-            msg = @connection.receive[0]
-          rescue IOError
-            PusherClient.logger.debug "IOError receiving data"
-            failures += 1
-            failures < 5 ? retry : raise
-          end
-
+          msg    = @connection.receive[0]
           next if msg.nil?
-          params  = parser(msg)
+          params = parser(msg)
           next if params['socket_id'] && params['socket_id'] == self.socket_id
 
           send_local_event params['event'], params['data'], params['channel']
