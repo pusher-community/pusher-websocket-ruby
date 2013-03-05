@@ -65,6 +65,7 @@ module PusherClient
           msg = @connection.receive[0]
           next if msg.nil?
           params  = parser(msg)
+          next if (params['socket_id'] && params['socket_id'] == self.socket_id)
           event_name   = params['event']
           event_data   = params['data']
           channel_name = params['channel']
