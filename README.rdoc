@@ -11,6 +11,11 @@ may be sent on. You can't just bind a global event without subscribing to any ch
 
 == Installation
   gem install pusher-client
+  
+If you're using Ruby 1.8.7, then you'll also need the openssl-nonblock gem:
+
+  gem install openssl-nonblock
+
 == Single-Threaded Usage
 The application will pause at socket.connect and handle events from Pusher as they happen.
 
