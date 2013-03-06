@@ -74,7 +74,7 @@ module PusherClient
 
       @connection_thread.run
       @connection_thread.join unless async
-      return self
+      self
     end
 
     def disconnect
