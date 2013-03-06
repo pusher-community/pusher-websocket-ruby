@@ -5,6 +5,9 @@ require 'openssl'
 
 module PusherClient
   class PusherWebSocket
+    WAIT_EXCEPTIONS  = [Errno::EAGAIN, Errno::EWOULDBLOCK]
+    WAIT_EXCEPTIONS << IO::WaitReadable if defined?(IO::WaitReadable)
+    
     attr_accessor :socket
 
     def initialize(url, params = {})
@@ -57,18 +60,11 @@ module PusherClient
     def receive
       raise "no handshake!" unless @handshaked
 
-      failures = 0
       begin
         data = @socket.read_nonblock(1024)
-      rescue IO::WaitReadable
+      rescue *WAIT_EXCEPTIONS
         IO.select([@socket])
         retry
-      rescue IOError
-        PusherClient.logger.debug "IOError receiving data"
-        sleep 0.01
-
-        failures += 1
-        failures < 5 ? retry : raise
       end
       @frame << data
 
@@ -81,10 +77,15 @@ module PusherClient
         messages << message.to_s
       end
       messages
+    rescue IOError, Errno::EBADF => error
+      PusherClient.logger.debug error.message
+      []
     end
 
     def close
       @socket.close
+    rescue IOError => error
+      PusherClient.logger.debug error.message
     end
   end
 end
