@@ -59,7 +59,7 @@ module PusherClient
 
       @connection_thread = Thread.new {
         options     = {:ssl => @encrypted || @secure}
-        @connection = WebSocket.new(url, options)
+        @connection = PusherWebSocket.new(url, options)
         PusherClient.logger.debug "Websocket connected"
 
         loop do
