@@ -49,7 +49,7 @@ module PusherClient
     def send(data, type = :text)
       raise "no handshake!" unless @handshaked
 
-      data = WebSocket::Frame::Outgoing::Server.new(version: @hs.version, data: data, type: type).to_s
+      data = WebSocket::Frame::Outgoing::Server.new(:version => @hs.version, :data => data, :type => type).to_s
       @socket.write data
       @socket.flush
     end
