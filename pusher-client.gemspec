@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.executables      = `git ls-files -- bin/*`.split("\n").map{ |f|
     File.basename(f)
   }
-  s.extra_rdoc_files = %q{LICENSE.txt README.rdoc}
+  s.extra_rdoc_files = %w(LICENSE.txt README.rdoc)
   s.require_paths    = ['lib']
   s.licenses         = ['MIT']
 
