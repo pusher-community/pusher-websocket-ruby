@@ -1,20 +1,17 @@
 autoload :Logger, 'logger'
 
 module PusherClient
-  HOST = 'ws.pusherapp.com'
-  WS_PORT = 80
-  WSS_PORT = 443
+  @host = 'ws.pusherapp.com'
+  @ws_port = 8080
+  @wss_port = 443
 
   @logger = Logger.new(STDOUT)
 
-  def self.logger
-    @logger
-  end
-
-  def self.logger=(logger)
-    @logger = logger
+  class << self
+    attr_accessor :logger, :host, :ws_port, :wss_port
   end
 end
+
 
 Thread.abort_on_exception = true
 
