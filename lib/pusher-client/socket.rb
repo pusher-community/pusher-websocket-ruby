@@ -5,9 +5,8 @@ require 'digest/md5'
 module PusherClient
   class Socket
 
-    # Mimick the JavaScript client
     CLIENT_ID = 'pusher-ruby-client'
-    VERSION = '0.2.2'
+    VERSION = '0.3.0'
     PROTOCOL = '5'
 
     attr_accessor :encrypted, :secure
@@ -58,24 +57,23 @@ module PusherClient
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
       @connection_thread = Thread.new {
-        options = {:ssl => @encrypted || @secure}
+        options     = {:ssl => @encrypted || @secure}
         @connection = PusherWebSocket.new(url, options)
         PusherClient.logger.debug "Websocket connected"
+
         loop do
-          msg = @connection.receive[0]
+          msg    = @connection.receive[0]
           next if msg.nil?
-          params  = parser(msg)
-          next if (params['socket_id'] && params['socket_id'] == self.socket_id)
-          event_name   = params['event']
-          event_data   = params['data']
-          channel_name = params['channel']
-          send_local_event(event_name, event_data, channel_name)
+          params = parser(msg)
+          next if params['socket_id'] && params['socket_id'] == self.socket_id
+
+          send_local_event params['event'], params['data'], params['channel']
         end
       }
 
       @connection_thread.run
       @connection_thread.join unless async
-      return self
+      self
     end
 
     def disconnect

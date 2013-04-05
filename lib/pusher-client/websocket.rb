@@ -2,9 +2,13 @@ require 'rubygems'
 require 'socket'
 require 'websocket'
 require 'openssl'
+require 'openssl/nonblock' if RUBY_VERSION == '1.8.7'
 
 module PusherClient
   class PusherWebSocket
+    WAIT_EXCEPTIONS  = [Errno::EAGAIN, Errno::EWOULDBLOCK]
+    WAIT_EXCEPTIONS << IO::WaitReadable if defined?(IO::WaitReadable)
+    
     attr_accessor :socket
 
     def initialize(url, params = {})
@@ -49,7 +53,7 @@ module PusherClient
     def send(data, type = :text)
       raise "no handshake!" unless @handshaked
 
-      data = WebSocket::Frame::Outgoing::Server.new(version: @hs.version, data: data, type: type).to_s
+      data = WebSocket::Frame::Outgoing::Server.new(:version => @hs.version, :data => data, :type => type).to_s
       @socket.write data
       @socket.flush
     end
@@ -59,7 +63,7 @@ module PusherClient
 
       begin
         data = @socket.read_nonblock(1024)
-      rescue IO::WaitReadable
+      rescue *WAIT_EXCEPTIONS
         IO.select([@socket])
         retry
       end
@@ -74,10 +78,15 @@ module PusherClient
         messages << message.to_s
       end
       messages
+    rescue IOError, Errno::EBADF => error
+      PusherClient.logger.debug error.message
+      []
     end
 
     def close
       @socket.close
+    rescue IOError => error
+      PusherClient.logger.debug error.message
     end
   end
 end
