@@ -71,6 +71,14 @@ and you can continue to subscribe/unsubscribe to channels and bind new events.
 For further documentation, read the source & test suite. Some features of the JavaScript client
 are not yet implemented.
 
+== Native extension
+Pusher depends on the websocket[https://github.com/imanel/websocket-ruby] gem
+which is a pure Ruby implementation of websockets.
+
+However it can optionally use a native C or Java implementation for a 25% speed
+increase by including the websocket-native[https://github.com/imanel/websocket-ruby-native]
+gem in your Gemfile.
+
 == Contributing to pusher-client
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
