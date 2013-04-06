@@ -25,6 +25,7 @@ module PusherClient
       @secure = false
       @connected = false
       @encrypted = options[:encrypted] || false
+      @private_auth_method = options[:private_auth_method]
 
       bind('pusher:connection_established') do |data|
         socket = JSON.parse(data)
@@ -156,9 +157,13 @@ module PusherClient
     end
 
     def get_private_auth(channel)
-      string_to_sign = @socket_id + ':' + channel.name
-      signature = HMAC::SHA256.hexdigest(@secret, string_to_sign)
-      return "#{@key}:#{signature}"
+      if (@private_auth_method.nil?)
+        string_to_sign = @socket_id + ':' + channel.name
+        signature = HMAC::SHA256.hexdigest(@secret, string_to_sign)
+        return "#{@key}:#{signature}"
+      else
+        return @private_auth_method.call(@socket_id, channel)
+      end
     end
 
     def get_presence_auth(channel)
