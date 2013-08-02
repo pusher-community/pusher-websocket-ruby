@@ -2,7 +2,6 @@ require 'rubygems'
 require 'socket'
 require 'websocket'
 require 'openssl'
-require 'openssl/nonblock' if RUBY_VERSION == '1.8.7'
 
 module PusherClient
   class PusherWebSocket
