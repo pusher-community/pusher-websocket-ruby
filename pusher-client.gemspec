@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'websocket', '~> 1.0.0'
   s.add_runtime_dependency 'ruby-hmac', '~> 0.4.0'
+  s.add_runtime_dependency 'json' if RUBY_VERSION < "1.9"
 
   s.add_development_dependency 'bacon', '>= 0'
   s.add_development_dependency 'rake',  '>= 0'
