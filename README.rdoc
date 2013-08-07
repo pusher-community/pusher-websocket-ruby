@@ -1,6 +1,6 @@
 = pusher-client (Ruby)
 
-{<img src="https://travis-ci.org/pusher/pusher-ruby-client].png" />}[https://travis-ci.org/pusher/pusher-ruby-client]
+{<img src="https://travis-ci.org/pusher/pusher-ruby-client.png" />}[https://travis-ci.org/pusher/pusher-ruby-client]
 
 pusher-client is a ruby gem for consuming WebSockets from the Pusher[http://pusherapp.com] web service.
 
