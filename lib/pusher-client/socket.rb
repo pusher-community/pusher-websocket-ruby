@@ -27,7 +27,7 @@ module PusherClient
       @encrypted = options[:encrypted] || false
 
       bind('pusher:connection_established') do |data|
-        socket = JSON.parse(data)
+        socket = Hash === data ? data : JSON.parse(data) #data is a Hash when using with Slanger
         @connected = true
         @socket_id = socket['socket_id']
         subscribe_all
@@ -50,9 +50,9 @@ module PusherClient
 
     def connect(async = false)
       if @encrypted || @secure
-        url = "wss://#{HOST}:#{WSS_PORT}#{@path}"
+        url = "wss://#{PusherClient.host}:#{PusherClient.wss_port}#{@path}"
       else
-        url = "ws://#{HOST}:#{WS_PORT}#{@path}"
+        url = "ws://#{PusherClient.host}:#{PusherClient.ws_port}#{@path}"
       end
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
@@ -87,8 +87,11 @@ module PusherClient
       end
     end
 
-    def subscribe(channel_name, user_id = nil)
-      @user_data = {:user_id => user_id}.to_json unless user_id.nil?
+    def subscribe(channel_name, user_id = nil, user_info = nil)
+      user_data = {}
+      user_data.merge!(:user_id => user_id) unless user_id.nil?
+      user_data.merge!(:user_info => user_info) unless user_info.nil?
+      @user_data = user_data.to_json
 
       channel = @channels << channel_name
       if @connected
