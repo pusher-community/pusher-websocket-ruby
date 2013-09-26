@@ -64,7 +64,7 @@ end
 
 describe "A PusherClient::Socket" do
   before do
-    @socket = PusherClient::Socket.new(TEST_APP_KEY)
+    @socket = PusherClient::Socket.new(TEST_APP_KEY, secret: 'secret')
   end
 
   it 'should not connect when instantiated' do
@@ -107,6 +107,26 @@ describe "A PusherClient::Socket" do
       @channel = @socket.unsubscribe('testchannel')
       PusherClient.logger.test_messages.last.should.include?('pusher:unsubscribe')
       @socket.channels['testchannel'].should.equal nil
+    end
+
+    it 'should subscribe to a private channel' do
+      @channel = @socket.subscribe('private-testchannel')
+      @socket.channels['private-testchannel'].should.equal @channel
+      @channel.subscribed.should.equal true
+    end
+
+    it 'should subscribe to a presence channel with user_id' do
+      @channel = @socket.subscribe('presence-testchannel', '123')
+      @socket.channels['presence-testchannel'].should.equal @channel
+      @socket.instance_variable_get('@user_data').should.equal '{"user_id":"123"}'
+      @channel.subscribed.should.equal true
+    end
+
+    it 'should subscribe to a presence channel with custom channel_data' do
+      @channel = @socket.subscribe('presence-testchannel', :user_id => '123', :user_name => 'john')
+      @socket.channels['presence-testchannel'].should.equal @channel
+      @socket.instance_variable_get('@user_data').should.equal '{"user_id":"123","user_name":"john"}'
+      @channel.subscribed.should.equal true
     end
 
     it 'should allow binding of global events' do
