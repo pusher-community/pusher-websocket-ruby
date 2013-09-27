@@ -64,7 +64,7 @@ end
 
 describe "A PusherClient::Socket" do
   before do
-    @socket = PusherClient::Socket.new(TEST_APP_KEY, secret: 'secret')
+    @socket = PusherClient::Socket.new(TEST_APP_KEY, :secret => 'secret')
   end
 
   it 'should not connect when instantiated' do
