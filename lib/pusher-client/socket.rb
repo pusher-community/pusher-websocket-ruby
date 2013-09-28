@@ -25,6 +25,7 @@ module PusherClient
       @secure = false
       @connected = false
       @encrypted = options[:encrypted] || false
+      @cert_file = options[:cert_file]
 
       bind('pusher:connection_established') do |data|
         socket = JSON.parse(data)
@@ -57,7 +58,7 @@ module PusherClient
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
       @connection_thread = Thread.new {
-        options     = {:ssl => @encrypted || @secure}
+        options     = {:ssl => @encrypted || @secure, :cert_file => @cert_file}
         @connection = PusherWebSocket.new(url, options)
         PusherClient.logger.debug "Websocket connected"
 
