@@ -27,6 +27,7 @@ module PusherClient
       @ws_host = options[:ws_host] || HOST
       @ws_port = options[:ws_port] || WS_PORT
       @wss_port = options[:wss_port] || WSS_PORT
+      @ssl_verify = options.fetch(:ssl_verify) { true }
 
       bind('pusher:connection_established') do |data|
         socket = JSON.parse(data)
@@ -59,7 +60,7 @@ module PusherClient
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
       @connection_thread = Thread.new {
-        options     = {:ssl => @encrypted, :cert_file => @cert_file}
+        options     = {:ssl => @encrypted, :cert_file => @cert_file, :ssl_verify => @ssl_verify}
         @connection = PusherWebSocket.new(url, options)
         PusherClient.logger.debug "Websocket connected"
 

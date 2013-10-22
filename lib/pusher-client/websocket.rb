@@ -6,7 +6,7 @@ module PusherClient
   class PusherWebSocket
     WAIT_EXCEPTIONS  = [Errno::EAGAIN, Errno::EWOULDBLOCK]
     WAIT_EXCEPTIONS << IO::WaitReadable if defined?(IO::WaitReadable)
-    
+
     CA_FILE = File.expand_path('../../../certs/cacert.pem', __FILE__)
 
     attr_accessor :socket
@@ -19,9 +19,13 @@ module PusherClient
 
       if params[:ssl] == true
         ctx = OpenSSL::SSL::SSLContext.new
-        ctx.verify_mode = OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
-        # http://curl.haxx.se/ca/cacert.pem
-        ctx.ca_file = @cert_file || CA_FILE
+        if params[:ssl_verify]
+          ctx.verify_mode = OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
+          # http://curl.haxx.se/ca/cacert.pem
+          ctx.ca_file = @cert_file || CA_FILE
+        else
+          ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
 
         ssl_sock = OpenSSL::SSL::SSLSocket.new(@socket, ctx)
         ssl_sock.sync_close = true
