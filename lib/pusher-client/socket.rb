@@ -24,6 +24,9 @@ module PusherClient
       @encrypted = options[:encrypted] || false
       @private_auth_method = options[:private_auth_method]
       @cert_file = options[:cert_file]
+      @ws_host = options[:ws_host] || HOST
+      @ws_port = options[:ws_port] || WS_PORT
+      @wss_port = options[:wss_port] || WSS_PORT
 
       bind('pusher:connection_established') do |data|
         socket = JSON.parse(data)
@@ -49,9 +52,9 @@ module PusherClient
 
     def connect(async = false)
       if @encrypted
-        url = "wss://#{HOST}:#{WSS_PORT}#{@path}"
+        url = "wss://#{@ws_host}:#{@wss_port}#{@path}"
       else
-        url = "ws://#{HOST}:#{WS_PORT}#{@path}"
+        url = "ws://#{@ws_host}:#{@ws_port}#{@path}"
       end
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
