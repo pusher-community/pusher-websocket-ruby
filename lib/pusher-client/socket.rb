@@ -8,7 +8,6 @@ module PusherClient
     CLIENT_ID = 'pusher-ruby-client'
     PROTOCOL = '5'
 
-    attr_accessor :encrypted
     attr_reader :path, :connected, :channels, :global_channel, :socket_id
 
     def initialize(app_key, options={})
