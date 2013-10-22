@@ -30,7 +30,7 @@ module PusherClient
       @ssl_verify = options.fetch(:ssl_verify) { true }
 
       bind('pusher:connection_established') do |data|
-        socket = JSON.parse(data)
+        socket = parser(data)
         @connected = true
         @socket_id = socket['socket_id']
         subscribe_all
@@ -203,14 +203,13 @@ module PusherClient
     end
 
     def parser(data)
-      begin
+      return data if data.is_a? Hash
         return JSON.parse(data)
       rescue => err
         PusherClient.logger.warn(err)
         PusherClient.logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
         return data
       end
-    end
 
     def hmac(secret, string_to_sign)
       digest = OpenSSL::Digest::SHA256.new
