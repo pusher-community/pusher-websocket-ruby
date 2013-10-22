@@ -13,7 +13,7 @@ module PusherClient
     def initialize(app_key, options={})
       raise "Missing app_key" unless app_key && !app_key.empty?
 
-      @path = "/app/#{app_key}?client=#{CLIENT_ID}&version=#{PusherClient::VERSION}&protocol=#{PROTOCOL}"
+      @path = "#{options[:ws_path]}/app/#{app_key}?client=#{CLIENT_ID}&version=#{PusherClient::VERSION}&protocol=#{PROTOCOL}"
       @key = app_key
       @secret = options[:secret]
       @socket_id = nil
@@ -204,12 +204,12 @@ module PusherClient
 
     def parser(data)
       return data if data.is_a? Hash
-        return JSON.parse(data)
-      rescue => err
-        PusherClient.logger.warn(err)
-        PusherClient.logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
-        return data
-      end
+      return JSON.parse(data)
+    rescue => err
+      PusherClient.logger.warn(err)
+      PusherClient.logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
+      return data
+    end
 
     def hmac(secret, string_to_sign)
       digest = OpenSSL::Digest::SHA256.new
