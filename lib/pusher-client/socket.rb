@@ -6,7 +6,6 @@ module PusherClient
   class Socket
 
     CLIENT_ID = 'pusher-ruby-client'
-    VERSION = '0.3.0'
     PROTOCOL = '5'
 
     attr_accessor :encrypted, :secure
@@ -15,7 +14,7 @@ module PusherClient
     def initialize(app_key, options={})
       raise "Missing app_key" unless app_key && !app_key.empty?
 
-      @path = "/app/#{app_key}?client=#{CLIENT_ID}&version=#{VERSION}&protocol=#{PROTOCOL}"
+      @path = "/app/#{app_key}?client=#{CLIENT_ID}&version=#{PusherClient::VERSION}&protocol=#{PROTOCOL}"
       @key = app_key
       @secret = options[:secret]
       @socket_id = nil

@@ -1,8 +1,12 @@
 # -*- encoding: utf-8 -*-
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'pusher-client/version'
+
 Gem::Specification.new do |s|
   s.name             = 'pusher-client'
-  s.version          = "0.3.0"
   s.authors          = ["Logan Koester", "Phil Leggetter"]
+  s.version          = PusherClient::VERSION
   s.email            = ['support@pusher.com']
   s.homepage         = 'http://github.com/pusher/pusher-ruby-client'
   s.summary          = 'Client for consuming WebSockets from http://pusher.com'
