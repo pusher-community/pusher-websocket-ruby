@@ -19,7 +19,7 @@ end
 Thread.abort_on_exception = true
 
 require 'pusher-client/version'
-require File.dirname(__FILE__) + '/pusher-client/websocket.rb'
-require File.dirname(__FILE__) + '/pusher-client/socket.rb'
-require File.dirname(__FILE__) + '/pusher-client/channel.rb'
-require File.dirname(__FILE__) + '/pusher-client/channels.rb'
+require 'pusher-client/websocket'
+require 'pusher-client/socket'
+require 'pusher-client/channel'
+require 'pusher-client/channels'

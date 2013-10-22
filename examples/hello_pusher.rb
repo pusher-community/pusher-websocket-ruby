@@ -1,7 +1,7 @@
 # Usage: $ PUSHER_KEY=YOURKEY ruby examples/hello_pusher.rb
 
-require 'rubygems'
-require './lib/pusher-client.rb'
+$:.unshift(File.expand_path("../../lib", __FILE__))
+require 'pusher-client'
 require 'pp'
 
 APP_KEY = ENV['PUSHER_KEY'] # || "YOUR_APPLICATION_KEY"
