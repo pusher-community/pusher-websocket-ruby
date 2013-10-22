@@ -8,7 +8,7 @@ module PusherClient
     CLIENT_ID = 'pusher-ruby-client'
     PROTOCOL = '5'
 
-    attr_accessor :encrypted, :secure
+    attr_accessor :encrypted
     attr_reader :path, :connected, :channels, :global_channel, :socket_id
 
     def initialize(app_key, options={})
@@ -21,7 +21,6 @@ module PusherClient
       @channels = Channels.new
       @global_channel = Channel.new('pusher_global_channel')
       @global_channel.global = true
-      @secure = false
       @connected = false
       @encrypted = options[:encrypted] || false
       @private_auth_method = options[:private_auth_method]
@@ -50,7 +49,7 @@ module PusherClient
     end
 
     def connect(async = false)
-      if @encrypted || @secure
+      if @encrypted
         url = "wss://#{HOST}:#{WSS_PORT}#{@path}"
       else
         url = "ws://#{HOST}:#{WS_PORT}#{@path}"
@@ -58,7 +57,7 @@ module PusherClient
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
       @connection_thread = Thread.new {
-        options     = {:ssl => @encrypted || @secure, :cert_file => @cert_file}
+        options     = {:ssl => @encrypted, :cert_file => @cert_file}
         @connection = PusherWebSocket.new(url, options)
         PusherClient.logger.debug "Websocket connected"
 
