@@ -1,5 +1,5 @@
 require 'json'
-require 'hmac-sha2'
+require 'openssl'
 require 'digest/md5'
 
 module PusherClient
@@ -164,7 +164,7 @@ module PusherClient
     def get_private_auth(channel)
       if (@private_auth_method.nil?)
         string_to_sign = @socket_id + ':' + channel.name
-        signature = HMAC::SHA256.hexdigest(@secret, string_to_sign)
+        signature = hmac(@secret, string_to_sign)
         return "#{@key}:#{signature}"
       else
         return @private_auth_method.call(@socket_id, channel)
@@ -173,7 +173,7 @@ module PusherClient
 
     def get_presence_auth(channel)
       string_to_sign = @socket_id + ':' + channel.name + ':' + @user_data
-      signature = HMAC::SHA256.hexdigest(@secret, string_to_sign)
+      signature = hmac(@secret, string_to_sign)
       return "#{@key}:#{signature}"
     end
 
@@ -209,6 +209,11 @@ module PusherClient
         PusherClient.logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
         return data
       end
+    end
+
+    def hmac(secret, string_to_sign)
+      digest = OpenSSL::Digest::SHA256.new
+      signature = OpenSSL::HMAC.hexdigest(digest, secret, string_to_sign)
     end
   end
 
