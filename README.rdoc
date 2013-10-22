@@ -32,6 +32,9 @@ The application will pause at socket.connect and handle events from Pusher as th
   # Subscribe to private channel
   socket.subscribe('private-channel4', USER_ID)
 
+  # Subscribe to presence channel with custom data (user_id is mandatory)
+  socket.subscribe('presence-channel5', :user_id => USER_ID, :user_name => 'john')
+
   # Bind to a global event (can occur on either channel1 or channel2)
   socket.bind('globalevent') do |data|
     puts data
