@@ -14,6 +14,7 @@ module PusherClient
       @hs ||= WebSocket::Handshake::Client.new(:url => url, :version => params[:version])
       @frame ||= WebSocket::Frame::Incoming::Server.new(:version => @hs.version)
       @socket = TCPSocket.new(@hs.host, @hs.port || 80)
+      @cert_file = params[:cert_file]
 
       if params[:ssl] == true
         ctx = OpenSSL::SSL::SSLContext.new
@@ -46,7 +47,7 @@ module PusherClient
     end
 
     def path_to_cert
-      File.join(File.dirname(File.expand_path(__FILE__)), '../../certs/cacert.pem')
+      @cert_file || File.join(File.dirname(File.expand_path(__FILE__)), '../../certs/cacert.pem')
     end
 
     def send(data, type = :text)
