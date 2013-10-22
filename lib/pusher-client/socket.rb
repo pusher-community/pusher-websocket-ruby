@@ -13,7 +13,7 @@ module PusherClient
     def initialize(app_key, options={})
       raise "Missing app_key" unless app_key && !app_key.empty?
 
-      @path = "/app/#{app_key}?client=#{CLIENT_ID}&version=#{PusherClient::VERSION}&protocol=#{PROTOCOL}"
+      @path = "#{options[:ws_path]}/app/#{app_key}?client=#{CLIENT_ID}&version=#{PusherClient::VERSION}&protocol=#{PROTOCOL}"
       @key = app_key
       @secret = options[:secret]
       @socket_id = nil
@@ -27,9 +27,10 @@ module PusherClient
       @ws_host = options[:ws_host] || HOST
       @ws_port = options[:ws_port] || WS_PORT
       @wss_port = options[:wss_port] || WSS_PORT
+      @ssl_verify = options.fetch(:ssl_verify) { true }
 
       bind('pusher:connection_established') do |data|
-        socket = JSON.parse(data)
+        socket = parser(data)
         @connected = true
         @socket_id = socket['socket_id']
         subscribe_all
@@ -59,7 +60,7 @@ module PusherClient
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
       @connection_thread = Thread.new {
-        options     = {:ssl => @encrypted, :cert_file => @cert_file}
+        options     = {:ssl => @encrypted, :cert_file => @cert_file, :ssl_verify => @ssl_verify}
         @connection = PusherWebSocket.new(url, options)
         PusherClient.logger.debug "Websocket connected"
 
@@ -202,13 +203,12 @@ module PusherClient
     end
 
     def parser(data)
-      begin
-        return JSON.parse(data)
-      rescue => err
-        PusherClient.logger.warn(err)
-        PusherClient.logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
-        return data
-      end
+      return data if data.is_a? Hash
+      return JSON.parse(data)
+    rescue => err
+      PusherClient.logger.warn(err)
+      PusherClient.logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
+      return data
     end
 
     def hmac(secret, string_to_sign)
