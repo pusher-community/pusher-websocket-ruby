@@ -8,6 +8,8 @@ module PusherClient
     WAIT_EXCEPTIONS  = [Errno::EAGAIN, Errno::EWOULDBLOCK]
     WAIT_EXCEPTIONS << IO::WaitReadable if defined?(IO::WaitReadable)
     
+    CA_FILE = File.expand_path('../../../certs/cacert.pem', __FILE__)
+
     attr_accessor :socket
 
     def initialize(url, params = {})
@@ -20,7 +22,7 @@ module PusherClient
         ctx = OpenSSL::SSL::SSLContext.new
         ctx.verify_mode = OpenSSL::SSL::VERIFY_PEER|OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT
         # http://curl.haxx.se/ca/cacert.pem
-        ctx.ca_file = path_to_cert()
+        ctx.ca_file = @cert_file || CA_FILE
 
         ssl_sock = OpenSSL::SSL::SSLSocket.new(@socket, ctx)
         ssl_sock.sync_close = true
@@ -44,10 +46,6 @@ module PusherClient
           break
         end
       end
-    end
-
-    def path_to_cert
-      @cert_file || File.join(File.dirname(File.expand_path(__FILE__)), '../../certs/cacert.pem')
     end
 
     def send(data, type = :text)
