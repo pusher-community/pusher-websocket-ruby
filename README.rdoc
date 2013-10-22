@@ -18,7 +18,6 @@ may be sent on. You can't just bind a global event without subscribing to any ch
 The application will pause at socket.connect and handle events from Pusher as they happen.
 
   require 'pusher-client'
-  PusherClient.logger = Logger.new(STDOUT)
   options = {:secret => 'YOUR_APPLICATION_SECRET'} 
   socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY, options)
 
@@ -52,7 +51,6 @@ The socket will remain open in the background as long as your main application t
 and you can continue to subscribe/unsubscribe to channels and bind new events.
 
   require 'pusher-client'
-  PusherClient.logger = Logger.new(STDOUT)
   socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)
   socket.connect(true) # Connect asynchronously
 

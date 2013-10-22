@@ -1,4 +1,5 @@
 require 'bacon'
+require 'logger'
 
 require File.dirname(__FILE__) + '/../lib/pusher-client.rb'
 

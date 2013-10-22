@@ -1,14 +1,13 @@
-autoload :Logger, 'logger'
-
 module PusherClient
   HOST = 'ws.pusherapp.com'
   WS_PORT = 80
   WSS_PORT = 443
 
-  @logger = Logger.new(STDOUT)
-
   def self.logger
-    @logger
+    @logger ||= begin
+      require 'logger'
+      Logger.new(STDOUT)
+    end
   end
 
   def self.logger=(logger)
