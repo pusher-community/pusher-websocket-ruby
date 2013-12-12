@@ -188,6 +188,12 @@ module PusherClient
       PusherClient.logger.debug("Pusher : sending event : #{payload}")
     end
 
+    def send_channel_event(channel, event_name, data)
+      payload = {'channel' => channel, 'event' => event_name, 'data' => data}.to_json
+      @connection.send(payload)
+      PusherClient.logger.debug("Pusher : sending channel event : #{payload}")
+    end
+
   protected
 
     def send_local_event(event_name, event_data, channel_name)
