@@ -24,24 +24,24 @@ module PusherClient
     end
 
     def dispatch(event_name, data)
-      PusherClient.logger.debug "Dispatching callbacks for #{event_name}"
+      PusherClient.logger.debug("Dispatching callbacks for #{event_name}")
       if @callbacks[event_name]
         @callbacks[event_name].each do |callback|
           callback.call(data)
         end
       else
-        PusherClient.logger.debug "No callbacks to dispatch for #{event_name}"
+        PusherClient.logger.debug("No callbacks to dispatch for #{event_name}")
       end
     end
 
     def dispatch_global_callbacks(event_name, data)
       if @global_callbacks[event_name]
-        PusherClient.logger.debug "Dispatching global callbacks for #{event_name}"
+        PusherClient.logger.debug("Dispatching global callbacks for #{event_name}")
         @global_callbacks[event_name].each do |callback|
           callback.call(data)
         end
       else
-        PusherClient.logger.debug "No global callbacks to dispatch for #{event_name}"
+        PusherClient.logger.debug("No global callbacks to dispatch for #{event_name}")
       end
     end
 
