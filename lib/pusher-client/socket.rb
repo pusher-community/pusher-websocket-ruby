@@ -29,6 +29,12 @@ module PusherClient
       @wss_port = options[:wss_port] || WSS_PORT
       @ssl_verify = options.fetch(:ssl_verify, true)
 
+      if @encrypted
+        @url = "wss://#{@ws_host}:#{@wss_port}#{@path}"
+      else
+        @url = "ws://#{@ws_host}:#{@ws_port}#{@path}"
+      end
+
       bind('pusher:connection_established') do |data|
         socket = parser(data)
         @connected = true
@@ -52,33 +58,9 @@ module PusherClient
     end
 
     def connect(async = false)
-      if @encrypted
-        url = "wss://#{@ws_host}:#{@wss_port}#{@path}"
-      else
-        url = "ws://#{@ws_host}:#{@ws_port}#{@path}"
-      end
-      PusherClient.logger.debug("Pusher : connecting : #{url}")
+      PusherClient.logger.debug("Pusher : connecting : #{@url}")
 
-      @connection_thread = Thread.new do
-
-        @connection = PusherWebSocket.new(url, {
-          :ssl => @encrypted,
-          :cert_file => @cert_file,
-          :ssl_verify => @ssl_verify
-        })
-
-        PusherClient.logger.debug("Websocket connected")
-
-        loop do
-          msg = @connection.receive.first
-          next if msg.nil?
-          params = parser(msg)
-          next if params['socket_id'] && params['socket_id'] == self.socket_id
-
-          send_local_event(params['event'], params['data'], params['channel'])
-        end
-      end
-
+      @connection_thread = Thread.new(&method(:connect_internal))
       @connection_thread.run
       @connection_thread.join unless async
       self
@@ -194,6 +176,25 @@ module PusherClient
     end
 
   protected
+
+    def connect_internal
+      @connection = PusherWebSocket.new(@url, {
+        :ssl => @encrypted,
+        :cert_file => @cert_file,
+        :ssl_verify => @ssl_verify
+      })
+
+      PusherClient.logger.debug("Websocket connected")
+
+      loop do
+        msg = @connection.receive.first
+        next if msg.nil?
+        params = parser(msg)
+        next if params['socket_id'] && params['socket_id'] == self.socket_id
+
+        send_local_event(params['event'], params['data'], params['channel'])
+      end
+    end
 
     def send_local_event(event_name, event_data, channel_name)
       if channel_name
