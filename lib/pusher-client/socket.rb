@@ -43,6 +43,7 @@ module PusherClient
       end
 
       bind('pusher:connection_disconnected') do |data|
+        @connected = false
         @channels.channels.each { |c| c.disconnect }
       end
 
@@ -58,6 +59,7 @@ module PusherClient
     end
 
     def connect(async = false)
+      return if @connection
       PusherClient.logger.debug("Pusher : connecting : #{@url}")
 
       if async
@@ -75,13 +77,14 @@ module PusherClient
     end
 
     def disconnect
-      if @connected
-        PusherClient.logger.debug("Pusher : disconnecting")
-        @connection.close
-        @connection_thread.kill if @connection_thread
-        @connected = false
-      else
-        PusherClient.logger.warn("Disconnect attempted... not connected")
+      return unless @connection
+      PusherClient.logger.debug("Pusher : disconnecting")
+      @connected = false
+      @connection.close
+      @connection = nil
+      if @connection_thread
+        @connection_thread.kill
+        @connection_thread = nil
       end
     end
 
