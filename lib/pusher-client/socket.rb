@@ -6,7 +6,7 @@ module PusherClient
   class Socket
 
     CLIENT_ID = 'pusher-ruby-client'
-    PROTOCOL = '5'
+    PROTOCOL = '6'
 
     attr_reader :path, :connected, :channels, :global_channel, :socket_id
 
