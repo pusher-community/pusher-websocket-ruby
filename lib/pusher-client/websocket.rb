@@ -16,6 +16,7 @@ module PusherClient
       @frame ||= WebSocket::Frame::Incoming::Server.new(:version => @hs.version)
       @socket = TCPSocket.new(@hs.host, @hs.port || 80)
       @cert_file = params[:cert_file]
+      @logger = params[:logger] || PusherClient.logger
 
       if params[:ssl] == true
         ctx = OpenSSL::SSL::SSLContext.new
@@ -84,14 +85,18 @@ module PusherClient
       end
       messages
     rescue IOError, Errno::EBADF => error
-      PusherClient.logger.debug error.message
+      logger.debug error.message
       []
     end
 
     def close
       @socket.close
     rescue IOError => error
-      PusherClient.logger.debug error.message
+      logger.debug error.message
     end
+
+    private
+
+    attr_reader :logger
   end
 end

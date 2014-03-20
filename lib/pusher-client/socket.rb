@@ -22,6 +22,7 @@ module PusherClient
       @global_channel.global = true
       @connected = false
       @encrypted = options[:encrypted] || false
+      @logger = options[:logger] || PusherClient.logger
       @private_auth_method = options[:private_auth_method]
       @cert_file = options[:cert_file]
       @ws_host = options[:ws_host] || HOST
@@ -48,7 +49,7 @@ module PusherClient
       end
 
       bind('pusher:error') do |data|
-        PusherClient.logger.fatal("Pusher : error : #{data.inspect}")
+        logger.fatal("Pusher : error : #{data.inspect}")
       end
 
       # Keep this in case we're using a websocket protocol that doesn't
@@ -60,7 +61,7 @@ module PusherClient
 
     def connect(async = false)
       return if @connection
-      PusherClient.logger.debug("Pusher : connecting : #{@url}")
+      logger.debug("Pusher : connecting : #{@url}")
 
       if async
         @connection_thread = Thread.new do
@@ -78,7 +79,7 @@ module PusherClient
 
     def disconnect
       return unless @connection
-      PusherClient.logger.debug("Pusher : disconnecting")
+      logger.debug("Pusher : disconnecting")
       @connected = false
       @connection.close
       @connection = nil
@@ -177,16 +178,18 @@ module PusherClient
     def send_event(event_name, data)
       payload = {'event' => event_name, 'data' => data}.to_json
       @connection.send(payload)
-      PusherClient.logger.debug("Pusher : sending event : #{payload}")
+      logger.debug("Pusher : sending event : #{payload}")
     end
 
     def send_channel_event(channel, event_name, data)
       payload = {'channel' => channel, 'event' => event_name, 'data' => data}.to_json
       @connection.send(payload)
-      PusherClient.logger.debug("Pusher : sending channel event : #{payload}")
+      logger.debug("Pusher : sending channel event : #{payload}")
     end
 
   protected
+
+    attr_reader :logger
 
     def connect_internal
       @connection = PusherWebSocket.new(@url, {
@@ -195,7 +198,7 @@ module PusherClient
         :ssl_verify => @ssl_verify
       })
 
-      PusherClient.logger.debug("Websocket connected")
+      logger.debug("Websocket connected")
 
       loop do
         msg = @connection.receive.first
@@ -216,15 +219,15 @@ module PusherClient
       end
 
       @global_channel.dispatch_with_all(event_name, event_data)
-      PusherClient.logger.debug("Pusher : event received : channel: #{channel_name}; event: #{event_name}")
+      logger.debug("Pusher : event received : channel: #{channel_name}; event: #{event_name}")
     end
 
     def parser(data)
       return data if data.is_a? Hash
       return JSON.parse(data)
     rescue => err
-      PusherClient.logger.warn(err)
-      PusherClient.logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
+      logger.warn(err)
+      logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
       return data
     end
 

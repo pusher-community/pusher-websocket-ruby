@@ -4,8 +4,9 @@ module PusherClient
     attr_accessor :global, :subscribed
     attr_reader :name, :callbacks, :global_callbacks
 
-    def initialize(channel_name)
+    def initialize(channel_name, logger=PusherClient.logger)
       @name = channel_name
+      @logger = logger
       @global = false
       @callbacks = {}
       @global_callbacks = {}
@@ -24,24 +25,24 @@ module PusherClient
     end
 
     def dispatch(event_name, data)
-      PusherClient.logger.debug("Dispatching callbacks for #{event_name}")
+      logger.debug("Dispatching callbacks for #{event_name}")
       if @callbacks[event_name]
         @callbacks[event_name].each do |callback|
           callback.call(data)
         end
       else
-        PusherClient.logger.debug("No callbacks to dispatch for #{event_name}")
+        logger.debug("No callbacks to dispatch for #{event_name}")
       end
     end
 
     def dispatch_global_callbacks(event_name, data)
       if @global_callbacks[event_name]
-        PusherClient.logger.debug("Dispatching global callbacks for #{event_name}")
+        logger.debug("Dispatching global callbacks for #{event_name}")
         @global_callbacks[event_name].each do |callback|
           callback.call(data)
         end
       else
-        PusherClient.logger.debug("No global callbacks to dispatch for #{event_name}")
+        logger.debug("No global callbacks to dispatch for #{event_name}")
       end
     end
 
@@ -49,6 +50,9 @@ module PusherClient
       @subscribed = true
     end
 
+    private
+
+    attr_reader :logger
   end
 
 end

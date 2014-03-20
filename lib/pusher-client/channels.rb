@@ -3,12 +3,13 @@ module PusherClient
 
     attr_reader :channels
 
-    def initialize
+    def initialize(logger=PusherClient.logger)
+      @logger = logger
       @channels = {}
     end
 
     def add(channel_name)
-      @channels[channel_name] ||= Channel.new(channel_name)
+      @channels[channel_name] ||= Channel.new(channel_name, @logger)
     end
 
     def find(channel_name)
