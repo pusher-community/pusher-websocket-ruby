@@ -91,14 +91,14 @@ module PusherClient
 
     def subscribe(channel_name, user_data = nil)
       if user_data.is_a? Hash
-        @user_data = user_data.to_json
+        user_data = user_data.to_json
       elsif user_data
-        @user_data = {:user_id => user_data}.to_json
+        user_data = {:user_id => user_data}.to_json
       elsif is_presence_channel(channel_name)
         raise ArgumentError, "user_data is required for presence channels"
       end
 
-      channel = @channels << channel_name
+      channel = @channels.add(channel_name, user_data)
       if @connected
         authorize(channel, method(:authorize_callback))
       end
@@ -107,7 +107,7 @@ module PusherClient
 
     def unsubscribe(channel_name)
       channel = @channels.remove channel_name
-      if @connected
+      if channel && @connected
         send_event('pusher:unsubscribe', {
           'channel' => channel_name
         })
@@ -121,11 +121,11 @@ module PusherClient
     end
 
     def [](channel_name)
-      @channels[channel_name] || @channels << channel_name
+      @channels[channel_name] || NullChannel.new(channel_name)
     end
 
     def subscribe_all
-      @channels.channels.clone.each { |k,v| subscribe(k) }
+      @channels.channels.clone.each { |k,v| subscribe(v.name, v.user_data) }
     end
 
     # auth for private and presence
@@ -134,10 +134,9 @@ module PusherClient
         auth_data = get_private_auth(channel)
       elsif is_presence_channel(channel.name)
         auth_data = get_presence_auth(channel)
-        channel_data = @user_data
       end
       # could both be nil if didn't require auth
-      callback.call(channel, auth_data, channel_data)
+      callback.call(channel, auth_data, channel.user_data)
     end
 
     def authorize_callback(channel, auth_data, channel_data)
@@ -168,7 +167,7 @@ module PusherClient
     end
 
     def get_presence_auth(channel)
-      string_to_sign = @socket_id + ':' + channel.name + ':' + @user_data
+      string_to_sign = @socket_id + ':' + channel.name + ':' + channel.user_data
       signature = hmac(@secret, string_to_sign)
       return "#{@key}:#{signature}"
     end

@@ -8,8 +8,8 @@ module PusherClient
       @channels = {}
     end
 
-    def add(channel_name)
-      @channels[channel_name] ||= Channel.new(channel_name, @logger)
+    def add(channel_name, user_data=nil)
+      @channels[channel_name] ||= Channel.new(channel_name, user_data, @logger)
     end
 
     def find(channel_name)
@@ -18,7 +18,6 @@ module PusherClient
 
     def remove(channel_name)
       @channels.delete(channel_name)
-      @channels
     end
 
     def empty?

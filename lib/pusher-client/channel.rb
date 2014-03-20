@@ -2,10 +2,11 @@ module PusherClient
 
   class Channel
     attr_accessor :global, :subscribed
-    attr_reader :name, :callbacks, :global_callbacks
+    attr_reader :name, :callbacks, :global_callbacks, :user_data
 
-    def initialize(channel_name, logger=PusherClient.logger)
+    def initialize(channel_name, user_data=nil, logger=PusherClient.logger)
       @name = channel_name
+      @user_data = user_data
       @logger = logger
       @global = false
       @callbacks = {}
@@ -53,6 +54,15 @@ module PusherClient
     private
 
     attr_reader :logger
+  end
+
+  class NullChannel
+    def initialize(channel_name, *a)
+      @name = channel_name
+    end
+    def method_missing(*a)
+      raise ArgumentError, "Channel `#{@name}` hasn't been subscribed yet."
+    end
   end
 
 end
