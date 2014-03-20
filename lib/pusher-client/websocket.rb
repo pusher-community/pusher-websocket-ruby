@@ -44,7 +44,7 @@ module PusherClient
         @hs << data
 
         if @hs.finished?
-          raise Exception unless @hs.valid?
+          raise @hs.error.to_s unless @hs.valid?
           @handshaked = true
           break
         end
