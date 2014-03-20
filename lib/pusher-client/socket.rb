@@ -60,9 +60,17 @@ module PusherClient
     def connect(async = false)
       PusherClient.logger.debug("Pusher : connecting : #{@url}")
 
-      @connection_thread = Thread.new(&method(:connect_internal))
-      @connection_thread.run
-      @connection_thread.join unless async
+      if async
+        @connection_thread = Thread.new do
+          begin
+            connect_internal
+          rescue => ex
+            send_local_event "pusher:error", ex
+          end
+        end
+      else
+        connect_internal
+      end
       self
     end
 
@@ -196,7 +204,7 @@ module PusherClient
       end
     end
 
-    def send_local_event(event_name, event_data, channel_name)
+    def send_local_event(event_name, event_data, channel_name=nil)
       if channel_name
         channel = @channels[channel_name]
         if channel
