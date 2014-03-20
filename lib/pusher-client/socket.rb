@@ -92,8 +92,10 @@ module PusherClient
     def subscribe(channel_name, user_data = nil)
       if user_data.is_a? Hash
         @user_data = user_data.to_json
-      elsif !user_data.nil?
+      elsif user_data
         @user_data = {:user_id => user_data}.to_json
+      elsif is_presence_channel(channel_name)
+        raise ArgumentError, "user_data is required for presence channels"
       end
 
       channel = @channels << channel_name
