@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.licenses         = ['MIT']
 
   s.add_runtime_dependency 'websocket', '~> 1.0.0'
-  s.add_runtime_dependency 'json' if RUBY_VERSION < "1.9"
+  s.add_runtime_dependency 'json'
 
   s.add_development_dependency "bacon"
   s.add_development_dependency "rake"
