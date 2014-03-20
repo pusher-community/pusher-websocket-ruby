@@ -15,8 +15,6 @@ module PusherClient
   end
 end
 
-Thread.abort_on_exception = true
-
 require 'pusher-client/version'
 require 'pusher-client/websocket'
 require 'pusher-client/socket'

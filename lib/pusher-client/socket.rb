@@ -29,6 +29,12 @@ module PusherClient
       @wss_port = options[:wss_port] || WSS_PORT
       @ssl_verify = options.fetch(:ssl_verify, true)
 
+      if @encrypted
+        @url = "wss://#{@ws_host}:#{@wss_port}#{@path}"
+      else
+        @url = "ws://#{@ws_host}:#{@ws_port}#{@path}"
+      end
+
       bind('pusher:connection_established') do |data|
         socket = parser(data)
         @connected = true
@@ -37,6 +43,7 @@ module PusherClient
       end
 
       bind('pusher:connection_disconnected') do |data|
+        @connected = false
         @channels.channels.each { |c| c.disconnect }
       end
 
@@ -52,46 +59,32 @@ module PusherClient
     end
 
     def connect(async = false)
-      if @encrypted
-        url = "wss://#{@ws_host}:#{@wss_port}#{@path}"
-      else
-        url = "ws://#{@ws_host}:#{@ws_port}#{@path}"
-      end
-      PusherClient.logger.debug("Pusher : connecting : #{url}")
+      return if @connection
+      PusherClient.logger.debug("Pusher : connecting : #{@url}")
 
-      @connection_thread = Thread.new do
-
-        @connection = PusherWebSocket.new(url, {
-          :ssl => @encrypted,
-          :cert_file => @cert_file,
-          :ssl_verify => @ssl_verify
-        })
-
-        PusherClient.logger.debug("Websocket connected")
-
-        loop do
-          msg = @connection.receive.first
-          next if msg.nil?
-          params = parser(msg)
-          next if params['socket_id'] && params['socket_id'] == self.socket_id
-
-          send_local_event(params['event'], params['data'], params['channel'])
+      if async
+        @connection_thread = Thread.new do
+          begin
+            connect_internal
+          rescue => ex
+            send_local_event "pusher:error", ex
+          end
         end
+      else
+        connect_internal
       end
-
-      @connection_thread.run
-      @connection_thread.join unless async
       self
     end
 
     def disconnect
-      if @connected
-        PusherClient.logger.debug("Pusher : disconnecting")
-        @connection.close
-        @connection_thread.kill if @connection_thread
-        @connected = false
-      else
-        PusherClient.logger.warn("Disconnect attempted... not connected")
+      return unless @connection
+      PusherClient.logger.debug("Pusher : disconnecting")
+      @connected = false
+      @connection.close
+      @connection = nil
+      if @connection_thread
+        @connection_thread.kill
+        @connection_thread = nil
       end
     end
 
@@ -195,7 +188,26 @@ module PusherClient
 
   protected
 
-    def send_local_event(event_name, event_data, channel_name)
+    def connect_internal
+      @connection = PusherWebSocket.new(@url, {
+        :ssl => @encrypted,
+        :cert_file => @cert_file,
+        :ssl_verify => @ssl_verify
+      })
+
+      PusherClient.logger.debug("Websocket connected")
+
+      loop do
+        msg = @connection.receive.first
+        next if msg.nil?
+        params = parser(msg)
+        next if params['socket_id'] && params['socket_id'] == self.socket_id
+
+        send_local_event(params['event'], params['data'], params['channel'])
+      end
+    end
+
+    def send_local_event(event_name, event_data, channel_name=nil)
       if channel_name
         channel = @channels[channel_name]
         if channel
