@@ -11,10 +11,10 @@ module PusherClient
     attr_reader :path, :connected, :channels, :global_channel, :socket_id
 
     def initialize(app_key, options={})
-      raise(ArgumentError, "Missing app_key") unless app_key && app_key.is_a?(String) && !app_key.empty?
+      raise ArgumentError, "Missing app_key" if app_key.to_s.empty?
 
       @path = "#{options[:ws_path]}/app/#{app_key}?client=#{CLIENT_ID}&version=#{PusherClient::VERSION}&protocol=#{PROTOCOL}"
-      @key = app_key
+      @key = app_key.to_s
       @secret = options[:secret]
       @socket_id = nil
       @channels = Channels.new
