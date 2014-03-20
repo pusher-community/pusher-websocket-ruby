@@ -8,10 +8,7 @@ module PusherClient
     end
 
     def add(channel_name)
-      unless @channels[channel_name]
-        @channels[channel_name] = Channel.new(channel_name)
-      end
-      @channels[channel_name]
+      @channels[channel_name] ||= Channel.new(channel_name)
     end
 
     def find(channel_name)

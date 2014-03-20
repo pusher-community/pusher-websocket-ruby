@@ -27,7 +27,7 @@ module PusherClient
       @ws_host = options[:ws_host] || HOST
       @ws_port = options[:ws_port] || WS_PORT
       @wss_port = options[:wss_port] || WSS_PORT
-      @ssl_verify = options.fetch(:ssl_verify) { true }
+      @ssl_verify = options.fetch(:ssl_verify, true)
 
       bind('pusher:connection_established') do |data|
         socket = parser(data)
@@ -59,20 +59,25 @@ module PusherClient
       end
       PusherClient.logger.debug("Pusher : connecting : #{url}")
 
-      @connection_thread = Thread.new {
-        options     = {:ssl => @encrypted, :cert_file => @cert_file, :ssl_verify => @ssl_verify}
-        @connection = PusherWebSocket.new(url, options)
-        PusherClient.logger.debug "Websocket connected"
+      @connection_thread = Thread.new do
+
+        @connection = PusherWebSocket.new(url, {
+          :ssl => @encrypted,
+          :cert_file => @cert_file,
+          :ssl_verify => @ssl_verify
+        })
+
+        PusherClient.logger.debug("Websocket connected")
 
         loop do
-          msg    = @connection.receive[0]
+          msg = @connection.receive.first
           next if msg.nil?
           params = parser(msg)
           next if params['socket_id'] && params['socket_id'] == self.socket_id
 
-          send_local_event params['event'], params['data'], params['channel']
+          send_local_event(params['event'], params['data'], params['channel'])
         end
-      }
+      end
 
       @connection_thread.run
       @connection_thread.join unless async
@@ -81,19 +86,19 @@ module PusherClient
 
     def disconnect
       if @connected
-        PusherClient.logger.debug "Pusher : disconnecting"
+        PusherClient.logger.debug("Pusher : disconnecting")
         @connection.close
         @connection_thread.kill if @connection_thread
         @connected = false
       else
-        PusherClient.logger.warn "Disconnect attempted... not connected"
+        PusherClient.logger.warn("Disconnect attempted... not connected")
       end
     end
 
     def subscribe(channel_name, user_data = nil)
       if user_data.is_a? Hash
         @user_data = user_data.to_json
-      elsif not user_data.nil?
+      elsif !user_data.nil?
         @user_data = {:user_id => user_data}.to_json
       end
 
@@ -120,20 +125,14 @@ module PusherClient
     end
 
     def [](channel_name)
-      if @channels[channel_name]
-        @channels[channel_name]
-      else
-        @channels << channel_name
-      end
+      @channels[channel_name] || @channels << channel_name
     end
 
     def subscribe_all
-      @channels.channels.clone.each{ |k,v|
-        subscribe(k)
-      }
+      @channels.channels.clone.each { |k,v| subscribe(k) }
     end
 
-    #auth for private and presence
+    # auth for private and presence
     def authorize(channel, callback)
       if is_private_channel(channel.name)
         auth_data = get_private_auth(channel)
@@ -163,7 +162,7 @@ module PusherClient
     end
 
     def get_private_auth(channel)
-      if (@private_auth_method.nil?)
+      if @private_auth_method.nil?
         string_to_sign = @socket_id + ':' + channel.name
         signature = hmac(@secret, string_to_sign)
         return "#{@key}:#{signature}"
@@ -179,7 +178,7 @@ module PusherClient
     end
 
 
-    # For compatibility with JavaScript client API
+    # for compatibility with JavaScript client API
     alias :subscribeAll :subscribe_all
 
     def send_event(event_name, data)
@@ -197,9 +196,9 @@ module PusherClient
   protected
 
     def send_local_event(event_name, event_data, channel_name)
-      if (channel_name)
+      if channel_name
         channel = @channels[channel_name]
-        if (channel)
+        if channel
           channel.dispatch_with_all(event_name, event_data)
         end
       end
