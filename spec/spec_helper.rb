@@ -1,7 +1,8 @@
-require 'bacon'
-require 'logger'
+$:.unshift File.expand_path('../lib', __FILE__)
 
-require File.dirname(__FILE__) + '/../lib/pusher-client.rb'
+require 'pusher-client'
+
+require 'logger'
 
 TEST_APP_KEY = "TEST_APP_KEY"
 

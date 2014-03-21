@@ -1,5 +1,4 @@
-require File.dirname(File.expand_path(__FILE__)) + '/teststrap.rb'
-require 'logger'
+require 'spec_helper'
 
 describe "A PusherClient::Channels collection" do
   before do
@@ -7,26 +6,26 @@ describe "A PusherClient::Channels collection" do
   end
 
   it "should initialize empty" do
-    @channels.empty?.should.equal(true)
-    @channels.size.should.equal 0
+    expect(@channels).to be_empty
+    expect(@channels.size).to eq(0)
   end
 
   it "should instantiate new channels added to it by name" do
     @channels << 'TestChannel'
-    @channels.find('TestChannel').class.should.equal(PusherClient::Channel)
+    expect(@channels.find('TestChannel').class).to eq(PusherClient::Channel)
   end
 
   it "should allow removal of channels by name" do
     @channels << 'TestChannel'
-    @channels['TestChannel'].class.should.equal(PusherClient::Channel)
+    expect(@channels['TestChannel'].class).to eq(PusherClient::Channel)
     @channels.remove('TestChannel')
-    @channels.empty?.should.equal(true)
+    expect(@channels).to be_empty
   end
 
   it "should not allow two channels of the same name" do
     @channels << 'TestChannel'
     @channels << 'TestChannel'
-    @channels.size.should.equal 1
+    expect(@channels.size).to eq(1)
   end
 
 end
@@ -38,16 +37,16 @@ describe "A PusherClient::Channel" do
   end
 
   it 'should not be subscribed by default' do
-    @channel.subscribed.should.equal false
+    expect(@channel.subscribed).to be_false
   end
 
   it 'should not be global by default' do
-    @channel.global.should.equal false
+    expect(@channel.global).to be_false
   end
 
   it 'can have procs bound to an event' do
     @channel.bind('TestEvent') {}
-    @channel.callbacks.size.should.equal 1
+    expect(@channel.callbacks.size).to eq(1)
   end
 
   it 'should run callbacks when an event is dispatched' do
@@ -57,7 +56,7 @@ describe "A PusherClient::Channel" do
     end
 
     @channel.dispatch('TestEvent', {})
-    PusherClient.logger.test_messages.should.include?("Local callback running")
+    expect(PusherClient.logger.test_messages).to include("Local callback running")
   end
 
 end
@@ -68,16 +67,16 @@ describe "A PusherClient::Socket" do
   end
 
   it 'should not connect when instantiated' do
-    @socket.connected.should.equal false
+    expect(@socket.connected).to be_false
   end
 
-  it 'should raise ArgumentError if TEST_APP_KEY is not a nonempty string' do
-    lambda { 
+  it 'should raise ArgumentError if TEST_APP_KEY is an empty string' do
+    expect { 
       @broken_socket = PusherClient::Socket.new('')
-    }.should.raise(ArgumentError)
-    lambda { 
-      @broken_socket = PusherClient::Socket.new(555)
-    }.should.raise(ArgumentError)
+    }.to raise_error(ArgumentError)
+    expect { 
+      @broken_socket = PusherClient::Socket.new(nil)
+    }.to raise_error(ArgumentError)
   end
 
   describe "...when connected" do
@@ -86,70 +85,71 @@ describe "A PusherClient::Socket" do
     end
 
     it 'should know its connected' do
-      @socket.connected.should.equal true
+      expect(@socket.connected).to be_true
     end
 
     it 'should know its socket_id' do
-      @socket.socket_id.should.equal '123abc'
+      expect(@socket.socket_id).to eq('123abc')
     end
 
     it 'should not be subscribed to its global channel' do
-      @socket.global_channel.subscribed.should.equal false
+      expect(@socket.global_channel.subscribed).to be_false
     end
 
     it 'should subscribe to a channel' do
       @channel = @socket.subscribe('testchannel')
-      @socket.channels['testchannel'].should.equal @channel
-      @channel.subscribed.should.equal true
+      expect(@socket.channels['testchannel']).to eq(@channel)
+      expect(@channel.subscribed).to be_true
     end
 
     it 'should unsubscribe from a channel' do
-      @channel = @socket.unsubscribe('testchannel')
-      PusherClient.logger.test_messages.last.should.include?('pusher:unsubscribe')
-      @socket.channels['testchannel'].should.equal nil
+      @socket.subscribe('testchannel')
+      @socket.unsubscribe('testchannel')
+      expect(PusherClient.logger.test_messages.last).to include('pusher:unsubscribe')
+      expect(@socket.channels['testchannel']).to be_nil
     end
 
     it 'should subscribe to a private channel' do
       @channel = @socket.subscribe('private-testchannel')
-      @socket.channels['private-testchannel'].should.equal @channel
-      @channel.subscribed.should.equal true
+      expect(@socket.channels['private-testchannel']).to eq(@channel)
+      expect(@channel.subscribed).to be_true
     end
 
     it 'should subscribe to a presence channel with user_id' do
       @channel = @socket.subscribe('presence-testchannel', '123')
-      @socket.channels['presence-testchannel'].should.equal @channel
-      @socket.instance_variable_get('@user_data').should.equal '{"user_id":"123"}'
-      @channel.subscribed.should.equal true
+      expect(@socket.channels['presence-testchannel']).to eq(@channel)
+      expect(@channel.user_data).to eq('{"user_id":"123"}')
+      expect(@channel.subscribed).to be_true
     end
 
     it 'should subscribe to a presence channel with custom channel_data' do
       @channel = @socket.subscribe('presence-testchannel', :user_id => '123', :user_name => 'john')
-      @socket.channels['presence-testchannel'].should.equal @channel
-      @socket.instance_variable_get('@user_data').should.equal '{"user_id":"123","user_name":"john"}'
-      @channel.subscribed.should.equal true
+      expect(@socket.channels['presence-testchannel']).to eq(@channel)
+      expect(@channel.user_data).to eq('{"user_id":"123","user_name":"john"}')
+      expect(@channel.subscribed).to be_true
     end
 
     it 'should allow binding of global events' do
       @socket.bind('testevent') { |data| PusherClient.logger.test("testchannel received #{data}") }
-      @socket.global_channel.callbacks.has_key?('testevent').should.equal true
+      expect(@socket.global_channel.callbacks.has_key?('testevent')).to be_true
     end
 
     it 'should trigger callbacks for global events' do
       @socket.bind('globalevent') { |data| PusherClient.logger.test("Global event!") }
-      @socket.global_channel.callbacks.has_key?('globalevent').should.equal true
+      expect(@socket.global_channel.callbacks.has_key?('globalevent')).to be_true
 
       @socket.simulate_received('globalevent', 'some data', '')
-      PusherClient.logger.test_messages.last.should.include?('Global event!')
+      expect(PusherClient.logger.test_messages.last).to include('Global event!')
     end
 
     it 'should kill the connection thread when disconnect is called' do
       @socket.disconnect
-      Thread.list.size.should.equal 1
+      expect(Thread.list.size).to eq(1)
     end
 
     it 'should not be connected after disconnecting' do
       @socket.disconnect
-      @socket.connected.should.equal false
+      expect(@socket.connected).to be_false
     end
 
     describe "when subscribed to a channel" do
@@ -159,7 +159,7 @@ describe "A PusherClient::Socket" do
 
       it 'should allow binding of callbacks for the subscribed channel' do
         @socket['testchannel'].bind('testevent') { |data| PusherClient.logger.test(data) }
-        @socket['testchannel'].callbacks.has_key?('testevent').should.equal true
+        expect(@socket['testchannel'].callbacks.has_key?('testevent')).to be_true
       end
 
       it "should trigger channel callbacks when a message is received" do
@@ -169,11 +169,11 @@ describe "A PusherClient::Socket" do
 
         # Simulate the first event
         @socket.simulate_received('coming', 'Hello!', 'testchannel')
-        PusherClient.logger.test_messages.last.should.include?('Hello!')
+        expect(PusherClient.logger.test_messages.last).to include('Hello!')
 
         # Simulate the second event
         @socket.simulate_received('going', 'Goodbye!', 'testchannel')
-        PusherClient.logger.test_messages.last.should.include?('Goodbye!')
+        expect(PusherClient.logger.test_messages.last).to include('Goodbye!')
       end
 
     end
