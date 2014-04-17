@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.require_paths    = ['lib']
   s.licenses         = ['MIT']
 
-  s.add_runtime_dependency 'websocket', '~> 1.1.2'
+  s.add_runtime_dependency 'websocket', '~> 1.0'
   s.add_runtime_dependency 'json'
 
   s.add_development_dependency "rspec"
