@@ -24,6 +24,7 @@ module PusherClient
       @encrypted = options[:encrypted] || false
       @logger = options[:logger] || PusherClient.logger
       @private_auth_method = options[:private_auth_method]
+      @presence_auth_method = options[:presence_auth_method]
       @cert_file = options[:cert_file]
       @ws_host = options[:ws_host] || HOST
       @ws_port = options[:ws_port] || WS_PORT
@@ -167,9 +168,13 @@ module PusherClient
     end
 
     def get_presence_auth(channel)
-      string_to_sign = @socket_id + ':' + channel.name + ':' + channel.user_data
-      signature = hmac(@secret, string_to_sign)
-      return "#{@key}:#{signature}"
+      if @presence_auth_method.nil?
+        string_to_sign = @socket_id + ':' + channel.name + ':' + channel.user_data
+        signature = hmac(@secret, string_to_sign)
+        return "#{@key}:#{signature}"
+      else
+        return @presence_auth_method.call(@socket_id, channel)
+      end
     end
 
 
