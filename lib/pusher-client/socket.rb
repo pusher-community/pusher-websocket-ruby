@@ -23,7 +23,8 @@ module PusherClient
       @connected = false
       @encrypted = options[:encrypted] || false
       @logger = options[:logger] || PusherClient.logger
-      @private_auth_method = options[:private_auth_method]
+      # :private_auth_method is deprecated
+      @auth_method = options[:auth_method] || options[:private_auth_method]
       @cert_file = options[:cert_file]
       @ws_host = options[:ws_host] || HOST
       @ws_port = options[:ws_port] || WS_PORT
@@ -157,19 +158,19 @@ module PusherClient
     end
 
     def get_private_auth(channel)
-      if @private_auth_method.nil?
-        string_to_sign = @socket_id + ':' + channel.name
-        signature = hmac(@secret, string_to_sign)
-        return "#{@key}:#{signature}"
-      else
-        return @private_auth_method.call(@socket_id, channel)
-      end
+      return @auth_method.call(@socket_id, channel) if @auth_method
+
+      string_to_sign = @socket_id + ':' + channel.name
+      signature = hmac(@secret, string_to_sign)
+      "#{@key}:#{signature}"
     end
 
     def get_presence_auth(channel)
+      return @auth_method.call(@socket_id, channel) if @auth_method
+
       string_to_sign = @socket_id + ':' + channel.name + ':' + channel.user_data
       signature = hmac(@secret, string_to_sign)
-      return "#{@key}:#{signature}"
+      "#{@key}:#{signature}"
     end
 
 
