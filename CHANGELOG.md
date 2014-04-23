@@ -1,4 +1,10 @@
 
+0.6.0 / 2014-04-23
+==================
+
+ * options[:auth_method] for both private and presence channels
+ * Relax websocket dependency to any 1.x version
+
 0.5.0 / 2014-04-15
 ==================
 
