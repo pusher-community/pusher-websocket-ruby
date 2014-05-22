@@ -84,9 +84,6 @@ module PusherClient
         messages << message.to_s
       end
       messages
-    rescue IOError, Errno::EBADF => error
-      logger.debug error.message
-      []
     end
 
     def close
