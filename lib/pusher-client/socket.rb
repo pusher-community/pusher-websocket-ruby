@@ -203,12 +203,14 @@ module PusherClient
       logger.debug("Websocket connected")
 
       loop do
-        msg = @connection.receive.first
-        next if msg.nil?
-        params = parser(msg)
-        next if params['socket_id'] && params['socket_id'] == self.socket_id
+        @connection.receive.each do |msg|
+          params = parser(msg)
 
-        send_local_event(params['event'], params['data'], params['channel'])
+          # why ?
+          next if params['socket_id'] && params['socket_id'] == self.socket_id
+
+          send_local_event(params['event'], params['data'], params['channel'])
+        end
       end
     end
 
