@@ -237,7 +237,7 @@ module PusherClient
 
     def hmac(secret, string_to_sign)
       digest = OpenSSL::Digest::SHA256.new
-      signature = OpenSSL::HMAC.hexdigest(digest, secret, string_to_sign)
+      OpenSSL::HMAC.hexdigest(digest, secret, string_to_sign)
     end
   end
 
