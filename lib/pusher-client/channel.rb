@@ -14,7 +14,7 @@ module PusherClient
     end
 
     def bind(event_name, &callback)
-      PusherClient.logger.debug "Binding #{event_name} to #{name}"
+      logger.debug "Binding #{event_name} to #{name}"
       @callbacks[event_name] = callbacks[event_name] || []
       @callbacks[event_name] << callback
       return self
