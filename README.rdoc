@@ -18,7 +18,7 @@ may be sent on. You can't just bind a global event without subscribing to any ch
 The application will pause at socket.connect and handle events from Pusher as they happen.
 
   require 'pusher-client'
-  options = {:secret => 'YOUR_APPLICATION_SECRET'} 
+  options = { secure: true } 
   socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY, options)
 
   # Subscribe to two channels
