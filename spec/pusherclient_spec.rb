@@ -37,11 +37,11 @@ describe "A PusherClient::Channel" do
   end
 
   it 'should not be subscribed by default' do
-    expect(@channel.subscribed).to be_false
+    expect(@channel.subscribed).to be_falsey
   end
 
   it 'should not be global by default' do
-    expect(@channel.global).to be_false
+    expect(@channel.global).to be_falsey
   end
 
   it 'can have procs bound to an event' do
@@ -67,7 +67,7 @@ describe "A PusherClient::Socket" do
   end
 
   it 'should not connect when instantiated' do
-    expect(@socket.connected).to be_false
+    expect(@socket.connected).to be_falsey
   end
 
   it 'should raise ArgumentError if TEST_APP_KEY is an empty string' do
@@ -85,7 +85,7 @@ describe "A PusherClient::Socket" do
     end
 
     it 'should know its connected' do
-      expect(@socket.connected).to be_true
+      expect(@socket.connected).to be_truthy
     end
 
     it 'should know its socket_id' do
@@ -93,13 +93,13 @@ describe "A PusherClient::Socket" do
     end
 
     it 'should not be subscribed to its global channel' do
-      expect(@socket.global_channel.subscribed).to be_false
+      expect(@socket.global_channel.subscribed).to be_falsey
     end
 
     it 'should subscribe to a channel' do
       @channel = @socket.subscribe('testchannel')
       expect(@socket.channels['testchannel']).to eq(@channel)
-      expect(@channel.subscribed).to be_true
+      expect(@channel.subscribed).to be_truthy
     end
 
     it 'should unsubscribe from a channel' do
@@ -112,31 +112,31 @@ describe "A PusherClient::Socket" do
     it 'should subscribe to a private channel' do
       @channel = @socket.subscribe('private-testchannel')
       expect(@socket.channels['private-testchannel']).to eq(@channel)
-      expect(@channel.subscribed).to be_true
+      expect(@channel.subscribed).to be_truthy
     end
 
     it 'should subscribe to a presence channel with user_id' do
       @channel = @socket.subscribe('presence-testchannel', '123')
       expect(@socket.channels['presence-testchannel']).to eq(@channel)
       expect(@channel.user_data).to eq('{"user_id":"123"}')
-      expect(@channel.subscribed).to be_true
+      expect(@channel.subscribed).to be_truthy
     end
 
     it 'should subscribe to a presence channel with custom channel_data' do
       @channel = @socket.subscribe('presence-testchannel', :user_id => '123', :user_name => 'john')
       expect(@socket.channels['presence-testchannel']).to eq(@channel)
       expect(@channel.user_data).to eq('{"user_id":"123","user_name":"john"}')
-      expect(@channel.subscribed).to be_true
+      expect(@channel.subscribed).to be_truthy
     end
 
     it 'should allow binding of global events' do
       @socket.bind('testevent') { |data| PusherClient.logger.test("testchannel received #{data}") }
-      expect(@socket.global_channel.callbacks.has_key?('testevent')).to be_true
+      expect(@socket.global_channel.callbacks.has_key?('testevent')).to be_truthy
     end
 
     it 'should trigger callbacks for global events' do
       @socket.bind('globalevent') { |data| PusherClient.logger.test("Global event!") }
-      expect(@socket.global_channel.callbacks.has_key?('globalevent')).to be_true
+      expect(@socket.global_channel.callbacks.has_key?('globalevent')).to be_truthy
 
       @socket.simulate_received('globalevent', 'some data', '')
       expect(PusherClient.logger.test_messages.last).to include('Global event!')
@@ -149,7 +149,7 @@ describe "A PusherClient::Socket" do
 
     it 'should not be connected after disconnecting' do
       @socket.disconnect
-      expect(@socket.connected).to be_false
+      expect(@socket.connected).to be_falsey
     end
 
     describe "when subscribed to a channel" do
@@ -159,7 +159,7 @@ describe "A PusherClient::Socket" do
 
       it 'should allow binding of callbacks for the subscribed channel' do
         @socket['testchannel'].bind('testevent') { |data| PusherClient.logger.test(data) }
-        expect(@socket['testchannel'].callbacks.has_key?('testevent')).to be_true
+        expect(@socket['testchannel'].callbacks.has_key?('testevent')).to be_truthy
       end
 
       it "should trigger channel callbacks when a message is received" do
