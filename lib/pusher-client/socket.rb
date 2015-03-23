@@ -231,7 +231,7 @@ module PusherClient
       return JSON.parse(data)
     rescue => err
       logger.warn(err)
-      logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
+      logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own PusherClient::Socket.parser")
       return data
     end
 
