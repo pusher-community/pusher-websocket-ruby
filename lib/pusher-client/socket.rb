@@ -46,7 +46,7 @@ module PusherClient
 
       bind('pusher:connection_disconnected') do |data|
         @connected = false
-        @channels.channels.each { |c| c.disconnect }
+        @socket_id = nil
       end
 
       bind('pusher:error') do |data|
