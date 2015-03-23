@@ -45,6 +45,7 @@ module PusherClient
       end
 
       bind('pusher:connection_disconnected') do |data|
+        @connection = nil
         @connected = false
         @socket_id = nil
       end
@@ -71,6 +72,7 @@ module PusherClient
           rescue => ex
             send_local_event "pusher:error", ex
           end
+          @connection_thread = nil
         end
       else
         connect_internal
@@ -78,16 +80,17 @@ module PusherClient
       self
     end
 
-    def disconnect
+    def disconnect(ex = nil)
       return unless @connection
       logger.debug("Pusher : disconnecting")
-      @connected = false
+
       @connection.close
-      @connection = nil
-      if @connection_thread
-        @connection_thread.kill
-        @connection_thread = nil
-      end
+
+      send_local_event("pusher:connection_disconnected", ex)
+    end
+
+    def closed?
+      @connection && @connection.closed?
     end
 
     def subscribe(channel_name, user_data = nil)
@@ -100,7 +103,7 @@ module PusherClient
       end
 
       channel = @channels.add(channel_name, user_data)
-      if @connected
+      if connected
         authorize(channel, method(:authorize_callback))
       end
       return channel
@@ -108,7 +111,7 @@ module PusherClient
 
     def unsubscribe(channel_name)
       channel = @channels.remove channel_name
-      if channel && @connected
+      if channel && connected
         send_event('pusher:unsubscribe', {
           'channel' => channel_name
         })
@@ -206,12 +209,14 @@ module PusherClient
         @connection.receive.each do |msg|
           params = parser(msg)
 
-          # why ?
+          # ignore messages to self
           next if params['socket_id'] && params['socket_id'] == self.socket_id
 
           send_local_event(params['event'], params['data'], params['channel'])
         end
       end
+    rescue IOError, Errno::EBADF => ex
+      disconnect(ex)
     end
 
     def send_local_event(event_name, event_data, channel_name=nil)

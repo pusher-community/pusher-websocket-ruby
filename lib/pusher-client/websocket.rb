@@ -96,6 +96,10 @@ module PusherClient
       logger.debug error.message
     end
 
+    def closed?
+      @socket.closed?
+    end
+
     private
 
     attr_reader :logger
