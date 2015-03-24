@@ -62,21 +62,11 @@ module PusherClient
     end
 
     def connect(async = false)
+      raise "Async is not supported anymore" if async
       return if @connection
       logger.debug("Pusher : connecting : #{@url}")
 
-      if async
-        @connection_thread = Thread.new do
-          begin
-            connect_internal
-          rescue => ex
-            send_local_event "pusher:error", ex
-          end
-          @connection_thread = nil
-        end
-      else
-        connect_internal
-      end
+      connect_internal
       self
     end
 
@@ -84,7 +74,7 @@ module PusherClient
       return unless @connection
       logger.debug("Pusher : disconnecting")
 
-      @connection.close
+      @connection.close rescue nil
 
       send_local_event("pusher:connection_disconnected", ex)
     end
@@ -215,8 +205,9 @@ module PusherClient
           send_local_event(params['event'], params['data'], params['channel'])
         end
       end
-    rescue IOError, Errno::EBADF => ex
+    rescue IOError, Errno::EBADF, SocketError => ex
       disconnect(ex)
+      return ex
     end
 
     def send_local_event(event_name, event_data, channel_name=nil)
