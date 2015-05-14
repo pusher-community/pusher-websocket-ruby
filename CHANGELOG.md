@@ -1,4 +1,16 @@
 
+0.6.2 / 2015-05-14
+==================
+
+  * DOC FIX: Add secure hash key in addition to encrypted
+  * FIX: Make sure to read all messages received
+  * FIX: Don't hide IOError when reading from the socket
+
+0.6.1 / 2015-05-14
+==================
+
+Same release as above but with missing changelog
+
 0.6.0 / 2014-04-23
 ==================
 
