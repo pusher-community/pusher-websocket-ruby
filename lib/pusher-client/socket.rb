@@ -21,7 +21,7 @@ module PusherClient
       @global_channel = Channel.new('pusher_global_channel')
       @global_channel.global = true
       @connected = false
-      @encrypted = options[:encrypted] || false
+      @encrypted = options[:encrypted] || options[:secure] || false
       @logger = options[:logger] || PusherClient.logger
       # :private_auth_method is deprecated
       @auth_method = options[:auth_method] || options[:private_auth_method]
