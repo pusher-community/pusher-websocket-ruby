@@ -17,12 +17,12 @@ module PusherClient
       @key = app_key.to_s
       @secret = options[:secret]
       @socket_id = nil
-      @channels = Channels.new
+      @logger = options[:logger] || PusherClient.logger
+      @channels = Channels.new(@logger)
       @global_channel = Channel.new('pusher_global_channel')
       @global_channel.global = true
       @connected = false
       @encrypted = options[:encrypted] || options[:secure] || false
-      @logger = options[:logger] || PusherClient.logger
       # :private_auth_method is deprecated
       @auth_method = options[:auth_method] || options[:private_auth_method]
       @cert_file = options[:cert_file]
