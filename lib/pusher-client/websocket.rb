@@ -12,8 +12,8 @@ module PusherClient
     attr_accessor :socket
 
     def initialize(url, params = {})
-      @hs ||= WebSocket::Handshake::Client.new(:url => url)
-      @frame ||= WebSocket::Frame::Incoming::Server.new(:version => @hs.version)
+      @hs = WebSocket::Handshake::Client.new(:url => url)
+      @frame = WebSocket::Frame::Incoming::Client.new(:version => @hs.version)
       @socket = TCPSocket.new(@hs.host, @hs.port || 80)
       @cert_file = params[:cert_file]
       @logger = params[:logger] || PusherClient.logger
@@ -45,9 +45,13 @@ module PusherClient
         @hs << data
 
         if @hs.finished?
-          raise @hs.error.to_s unless @hs.valid?
-          @handshaked = true
-          break
+          if @hs.valid?
+            @handshaked = true
+            break
+          else
+            close
+            raise @hs.error.to_s
+          end
         end
       end
     end
@@ -90,6 +94,10 @@ module PusherClient
       @socket.close
     rescue IOError => error
       logger.debug error.message
+    end
+
+    def closed?
+      @socket.closed?
     end
 
     private

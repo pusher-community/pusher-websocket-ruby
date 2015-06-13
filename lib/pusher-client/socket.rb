@@ -6,7 +6,7 @@ module PusherClient
   class Socket
 
     CLIENT_ID = 'pusher-ruby-client'
-    PROTOCOL = '6'
+    PROTOCOL = '7'
 
     attr_reader :path, :connected, :channels, :global_channel, :socket_id
 
@@ -45,8 +45,9 @@ module PusherClient
       end
 
       bind('pusher:connection_disconnected') do |data|
+        @connection = nil
         @connected = false
-        @channels.channels.each { |c| c.disconnect }
+        @socket_id = nil
       end
 
       bind('pusher:error') do |data|
@@ -61,33 +62,25 @@ module PusherClient
     end
 
     def connect(async = false)
+      raise "Async is not supported anymore" if async
       return if @connection
       logger.debug("Pusher : connecting : #{@url}")
 
-      if async
-        @connection_thread = Thread.new do
-          begin
-            connect_internal
-          rescue => ex
-            send_local_event "pusher:error", ex
-          end
-        end
-      else
-        connect_internal
-      end
+      connect_internal
       self
     end
 
-    def disconnect
+    def disconnect(ex = nil)
       return unless @connection
       logger.debug("Pusher : disconnecting")
-      @connected = false
-      @connection.close
-      @connection = nil
-      if @connection_thread
-        @connection_thread.kill
-        @connection_thread = nil
-      end
+
+      @connection.close rescue nil
+
+      send_local_event("pusher:connection_disconnected", ex)
+    end
+
+    def closed?
+      @connection && @connection.closed?
     end
 
     def subscribe(channel_name, user_data = nil)
@@ -100,7 +93,7 @@ module PusherClient
       end
 
       channel = @channels.add(channel_name, user_data)
-      if @connected
+      if connected
         authorize(channel, method(:authorize_callback))
       end
       return channel
@@ -108,7 +101,7 @@ module PusherClient
 
     def unsubscribe(channel_name)
       channel = @channels.remove channel_name
-      if channel && @connected
+      if channel && connected
         send_event('pusher:unsubscribe', {
           'channel' => channel_name
         })
@@ -206,12 +199,15 @@ module PusherClient
         @connection.receive.each do |msg|
           params = parser(msg)
 
-          # why ?
+          # ignore messages to self
           next if params['socket_id'] && params['socket_id'] == self.socket_id
 
           send_local_event(params['event'], params['data'], params['channel'])
         end
       end
+    rescue IOError, Errno::EBADF, SocketError => ex
+      disconnect(ex)
+      return ex
     end
 
     def send_local_event(event_name, event_data, channel_name=nil)
@@ -231,13 +227,13 @@ module PusherClient
       return JSON.parse(data)
     rescue => err
       logger.warn(err)
-      logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own Pusher::Client.parser")
+      logger.warn("Pusher : data attribute not valid JSON - you may wish to implement your own PusherClient::Socket.parser")
       return data
     end
 
     def hmac(secret, string_to_sign)
       digest = OpenSSL::Digest::SHA256.new
-      signature = OpenSSL::HMAC.hexdigest(digest, secret, string_to_sign)
+      OpenSSL::HMAC.hexdigest(digest, secret, string_to_sign)
     end
   end
 

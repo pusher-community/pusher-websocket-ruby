@@ -46,35 +46,6 @@ The application will pause at socket.connect and handle events from Pusher as th
 
   socket.connect
 
-== Asynchronous Usage
-The socket will remain open in the background as long as your main application thread is running,
-and you can continue to subscribe/unsubscribe to channels and bind new events.
-
-  require 'pusher-client'
-  socket = PusherClient::Socket.new(YOUR_APPLICATION_KEY)
-  socket.connect(true) # Connect asynchronously
-
-  # Subscribe to two channels
-  socket.subscribe('channel1')
-  socket.subscribe('channel2')
-
-  # Bind to a global event (can occur on either channel1 or channel2)
-  socket.bind('globalevent') do |data|
-    puts data
-  end
-
-  # Bind to a channel event (can only occur on channel1)
-  socket['channel1'].bind('channelevent') do |data|
-    puts data
-  end
-
-  loop do
-    sleep(1) # Keep your main thread running
-  end
-
-For further documentation, read the source & test suite. Some features of the JavaScript client
-are not yet implemented.
-
 == Native extension
 Pusher depends on the websocket[https://github.com/imanel/websocket-ruby] gem
 which is a pure Ruby implementation of websockets.
