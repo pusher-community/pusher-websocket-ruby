@@ -4,19 +4,17 @@
 
 `pusher-client` is a Ruby gem for consuming WebSockets from the [Pusher Channels](https://pusher.com/channels) web service.
 
-The connection to Pusher Channels can optionally be maintained in its own thread (see Asynchronous Usage).
-
-This gem no longer depends on `em-http`, and is compatible with jruby since 0.2.
-
 ## Installation
 
 ```sh
 gem install pusher-client
 ```
 
+This gem is compatible with jruby since 0.2.
+
 ## Single-Threaded Usage
 
-The application will pause at `socket.connect` and handle events from Pusher Channels as they happen.
+The application will pause at `channels_client.connect` and handle events from Pusher Channels as they happen.
 
 ```ruby
 require 'pusher-client'
@@ -51,7 +49,9 @@ channels_client.connect
 
 ## Asynchronous Usage
 
-The socket will remain open in the background as long as your main application thread is running,
+With `channels_client.connect(true)`,
+the connection to Pusher Channels will be maintained in its own thread.
+The connection will remain open in the background as long as your main application thread is running,
 and you can continue to subscribe/unsubscribe to channels and bind new events.
 
 ```ruby
@@ -78,26 +78,13 @@ loop do
 end
 ```
 
-For further documentation, read the source & test suite. Some features of the JavaScript client
-are not yet implemented.
-
-## Native extension
+## Using native WebSocket implementation
 
 This gem depends on [the `websocket` gem](https://github.com/imanel/websocket-ruby)
 which is a pure Ruby implementation of websockets.
 
 However it can optionally use a native C or Java implementation for a 25% speed
 increase by including [the `websocket-native` gem](https://github.com/imanel/websocket-ruby-native) in your Gemfile.
-
-## Contributing to pusher-client
-
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
-* Fork the project
-* Start a feature/bugfix branch
-* Commit and push until you are happy with your contribution
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
 ## Copyright and license
 
