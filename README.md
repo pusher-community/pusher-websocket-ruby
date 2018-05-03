@@ -18,8 +18,11 @@ The application will pause at `channels_client.connect` and handle events from P
 
 ```ruby
 require 'pusher-client'
-options = { secure: true }
-channels_client = PusherClient::Socket.new(YOUR_APPLICATION_KEY, options)
+cluster = 'mt1'  # take this from your app's config in the dashboard
+channels_client = PusherClient::Socket.new(YOUR_APPLICATION_KEY, {
+  secure: true,
+  ws_host: "ws-#{cluster}.pusher.com"
+})
 
 # Subscribe to two channels
 channels_client.subscribe('channel1')
